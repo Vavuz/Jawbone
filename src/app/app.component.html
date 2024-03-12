@@ -1,21 +1,27 @@
 <div class="main-container">
-  <div class="sidebar" [class.collapsed]="isCollapsed">
+  <div class="sidebar left" [class.collapsed]="isLeftCollapsed">
     <h1>Jawbone</h1>
-    <nav>
-      <a>Home</a>
-      <a>About</a>
-    </nav>
+    <button class="load-dialogue" click="upload()">📎 Load dialogue file</button>
+    <div class="text-block-container">
+      <p class="text-block-title">Content:</p>
+      <input type="text" class="text-block" placeholder="Enter text here">
+    </div>
   </div>
   <div class="content">
     <div class="title-container">
-      <button class="toggle-button" (click)="toggleSidebar()">☰ Sidebar</button>
+      <button class="toggle-button left" (click)="toggleLeftSidebar()">☰ Resource Pane</button>
       <h1 class="main-title">Jawbone</h1>
+      <button class="toggle-button right" (click)="toggleRightSidebar()">Diagram Pane ☰</button>
       <img src="../assets/images/jawbone_logo.png">
     </div>
-    <button class="upload-button" (click)="upload()">📎 Upload</button>
-
-    <router-outlet>
-    </router-outlet>
-
+    <router-outlet></router-outlet>
+  </div>
+  <div class="sidebar right" [class.collapsed]="isRightCollapsed">
+    <h1>Jawbone</h1>
+      <button class="reset">Reset</button><br>
+      <button class="load-demo">Load demo</button>
+      <p>Export:</p>
+      <button class="export-png">PNG</button><br>
+      <button class="export-json">JSON</button>
   </div>
 </div>

@@ -10,10 +10,15 @@ import { RouterOutlet } from '@angular/router';
 })
 export class AppComponent {
   title = 'Jawbone';
-  isCollapsed = false;
+  isLeftCollapsed = false;
+  isRightCollapsed = true;
 
-  toggleSidebar(): void {
-    this.isCollapsed = !this.isCollapsed;
+  toggleLeftSidebar(): void {
+    this.isLeftCollapsed = !this.isLeftCollapsed;
+  }
+
+  toggleRightSidebar(): void {
+    this.isRightCollapsed = !this.isRightCollapsed;
   }
 
   upload(): void {
