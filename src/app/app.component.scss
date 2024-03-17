@@ -5,7 +5,7 @@
 
 .sidebar {
     width: 250px;
-    background-color: #f0f0f0;
+    background-color: #EABE6C;
     padding: 20px;
     transition: width 0.3s ease;
     border-radius: 15px;
@@ -32,7 +32,7 @@
 
 .content {
     flex-grow: 1;
-    background-color: #fddcdc;
+    background-color: #FFEDD8;
     padding: 20px;
     overflow: hidden;
     display: flex;
@@ -54,19 +54,19 @@
 }
 
 .left.toggle-button {
-    background-color: #4CAF50;
+    background-color: #240A34;
     position: absolute;
     left: 20px;
 }
 
 .right.toggle-button {
-    background-color: #FF9800;
+    background-color: #240A34;
     position: absolute;
     right: 20px;
 }
 
 .load-dialogue {
-    background-color: #2196F3;
+    background-color: #891652;
     margin-top: 20px;
 }
 
@@ -79,11 +79,8 @@
     top: 0;
 }
 
-.text-block-container {
-    margin-top: 3rem;
-}
-
 .text-block-title {
+    margin-top: 3rem;
     font-size: 18px;
     font-weight: bold;
     margin-bottom: 0.5rem;
@@ -104,15 +101,15 @@
 }
 
 .load-demo {
-    background-color: #2196F3;
+    background-color: #891652;
     margin-top: 20px;
 }
 
 .export-png {
-    background-color: #2196F3;
+    background-color: #891652;
 }
 
 .export-json {
-    background-color: #2196F3;
+    background-color: #891652;
     margin-top: 20px;
 }
