@@ -1,0 +1,20 @@
+.context-menu {
+    position: absolute;
+    z-index: 1000;
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+
+.context-menu button {
+    display: block;
+    width: 100%;
+    padding: 8px;
+    border: none;
+    background: none;
+    text-align: left;
+}
+
+.context-menu button:hover {
+    background: #f0f0f0;
+}
