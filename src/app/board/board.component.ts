@@ -449,6 +449,13 @@ export class BoardComponent {
     return { x: midX, y: midY };
   }
 
+  clear(): void {
+    this.cy?.elements().remove();
+    this.snackBar.open('The board has been cleared', 'Close', {
+      duration: 3000,
+    });
+  }
+
   saveNode() {
     this.showModal = false;
   }
