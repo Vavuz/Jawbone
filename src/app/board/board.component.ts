@@ -132,7 +132,7 @@ export class BoardComponent {
 
   private showContextMenu(node: cytoscape.NodeSingular, event: MouseEvent) {
     this.hideContextMenu();
-
+  
     const contextMenuRef = this.contextMenuContainer.createComponent(
       ContextMenuComponent
     );
@@ -141,15 +141,30 @@ export class BoardComponent {
       this.hideContextMenu();
       this.editNode(node);
     });
-
+  
     const domElem = (contextMenuRef.hostView as any).rootNodes[0] as HTMLElement;
-    domElem.style.position = 'absolute';
-    domElem.style.top = `${event.clientY}px`;
-    domElem.style.left = `${event.clientX}px`;
-    domElem.style.zIndex = '1000';
+    domElem.style.position = 'fixed';
+  
+    const containerRect = this.cy!.container()!.getBoundingClientRect();
+  
+    const pan = this.cy!.pan();
+    const zoom = this.cy!.zoom();
+    const modelPosition = node.position();
 
+    const nodeRenderedPosition = {
+      x: modelPosition.x * zoom + pan.x,
+      y: modelPosition.y * zoom + pan.y,
+    };
+  
+    const contextMenuX = containerRect.left + nodeRenderedPosition.x;
+    const contextMenuY = containerRect.top + nodeRenderedPosition.y;
+  
+    domElem.style.left = `${contextMenuX}px`;
+    domElem.style.top = `${contextMenuY}px`;
+    domElem.style.zIndex = '1000';
+  
     this.contextMenuRef = contextMenuRef;
-  }
+  }  
 
   private hideContextMenu() {
     if (this.contextMenuRef) {
