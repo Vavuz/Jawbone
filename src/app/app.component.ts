@@ -55,7 +55,7 @@ export class AppComponent {
   }
 
   reset(): void {
-    const dialogRef = this.dialog.open(ResetDialogComponent);
+    const dialogRef = this.dialog.open(ResetDialogComponent, {autoFocus: false});
 
     dialogRef.afterClosed().subscribe((confirmed: boolean) => {
       if (confirmed) {
