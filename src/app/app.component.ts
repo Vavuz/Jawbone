@@ -2,9 +2,11 @@ import { Component, Inject, PLATFORM_ID, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { BoardComponent } from './board/board.component';
 import { isPlatformBrowser } from '@angular/common';
-import {MatIconModule} from '@angular/material/icon';
-import {MatDividerModule} from '@angular/material/divider';
-import {MatButtonModule} from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
+import { ResetDialogComponent } from './reset-dialog/reset-dialog.component';
 
 @Component({
   selector: 'app-root',
@@ -26,7 +28,9 @@ export class AppComponent {
 
   @ViewChild(BoardComponent) boardComponent!: BoardComponent;
   
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    public dialog: MatDialog) {
     this.initializeSelectionListener();
   }
 
@@ -51,8 +55,17 @@ export class AppComponent {
   }
 
   reset(): void {
-    // Implement reset functionality
-    console.log('Reset clicked');
+    const dialogRef = this.dialog.open(ResetDialogComponent);
+
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        this.clearBoard();
+      }
+    });
+  }
+
+  clearBoard(): void {
+    this.boardComponent.clear();
   }
 
   upload(): void {
