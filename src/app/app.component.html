@@ -1,7 +1,8 @@
 <div class="main-container">
   <div class="sidebar left" [class.collapsed]="isLeftCollapsed">
     <h1>Jawbone</h1>
-    <button class="load-dialogue" click="upload()">📎 Load dialogue file</button>
+    <button class="load-dialogue" (click)="upload()">📎 Load dialogue file</button>
+    <button class="add-node" (click)="addNode()">+ Add Node</button>
     <p class="text-block-title">Content:</p>
     <textarea type="text" class="text-block" placeholder="Enter text here"></textarea>
   </div>
@@ -12,14 +13,14 @@
       <button class="toggle-button right" (click)="toggleRightSidebar()">Diagram Pane ☰</button>
       <img src="../assets/images/jawbone_logo.png">
     </div>
-    <router-outlet></router-outlet>
+    <app-board></app-board>
   </div>
   <div class="sidebar right" [class.collapsed]="isRightCollapsed">
     <h1>Jawbone</h1>
-      <button class="reset">Reset</button><br>
-      <button class="load-demo">Load demo</button>
-      <p>Export:</p>
-      <button class="export-png">PNG</button><br>
-      <button class="export-json">JSON</button>
+    <button class="reset" (click)="reset()">Reset</button><br>
+    <button class="load-demo" (click)="loadDemo()">Load demo</button>
+    <p>Export:</p>
+    <button class="export-png" (click)="exportPng()">PNG</button><br>
+    <button class="export-json" (click)="exportJson()">JSON</button>
   </div>
 </div>
