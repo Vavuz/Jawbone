@@ -1,12 +1,14 @@
 import { Component, Inject, PLATFORM_ID, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { BoardComponent } from './board/board.component';
+import { BoardComponent } from './components/board/board.component';
 import { isPlatformBrowser } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { ResetDialogComponent } from './reset-dialog/reset-dialog.component';
+import { ResetDialogComponent } from './components/reset-dialog/reset-dialog.component';
+import { FileUploadService } from './services/file-upload/file-upload.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +17,8 @@ import { ResetDialogComponent } from './reset-dialog/reset-dialog.component';
     BoardComponent,
     MatButtonModule,
     MatDividerModule,
-    MatIconModule
+    MatIconModule,
+    FormsModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
@@ -25,12 +28,15 @@ export class AppComponent {
   isLeftCollapsed = false;
   isRightCollapsed = true;
   newNodeDescription: string = '';
+  textBlock: string = '';
 
   @ViewChild(BoardComponent) boardComponent!: BoardComponent;
   
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
-    public dialog: MatDialog) {
+    public dialog: MatDialog,
+    private fileUploadService: FileUploadService
+  ) {
     this.initializeSelectionListener();
   }
 
@@ -68,23 +74,24 @@ export class AppComponent {
     this.boardComponent.clear();
   }
 
-  upload(): void {
-    // Implement upload functionality
-    console.log('Upload clicked');
-  }
+  upload(event: any) {
+    const file: File = event.target.files[0];
+    this.fileUploadService.readFile(file).then((fileContent: string) => {
+      this.textBlock = fileContent;
+    }).catch(error => {
+      console.error(error);
+    });
+  }  
 
   loadDemo(): void {
-    // Implement load demo functionality
     console.log('Load demo clicked');
   }
 
   exportPng(): void {
-    // Implement export functionality
     console.log('Export PNG clicked');
   }
 
   exportJson(): void {
-    // Implement export functionality
     console.log('Export JSON clicked');
   }
 }
