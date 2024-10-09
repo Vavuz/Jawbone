@@ -77,7 +77,6 @@ export class AppComponent {
   upload(event: any) {
     const file: File = event.target.files[0];
     this.fileUploadService.readFile(file).then((fileContent: string) => {
-      // Set the content to the textarea
       this.textBlock = fileContent;
     }).catch(error => {
       console.error(error);
@@ -85,17 +84,14 @@ export class AppComponent {
   }  
 
   loadDemo(): void {
-    // Implement load demo functionality
     console.log('Load demo clicked');
   }
 
   exportPng(): void {
-    // Implement export functionality
     console.log('Export PNG clicked');
   }
 
   exportJson(): void {
-    // Implement export functionality
     console.log('Export JSON clicked');
   }
 }
