@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { ResetDialogComponent } from './components/reset-dialog/reset-dialog.component';
+import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 import { FileUploadService } from './services/file-upload/file-upload.service';
 import { FormsModule } from '@angular/forms';
 
@@ -61,7 +61,7 @@ export class AppComponent {
   }
 
   reset(): void {
-    const dialogRef = this.dialog.open(ResetDialogComponent, {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       data: {
         title: 'Reset Board',
         message: 'Are you sure you want to reset the board? This cannot be undone.',
@@ -90,7 +90,7 @@ export class AppComponent {
   }  
 
   loadDemo(): void {
-    const dialogRef = this.dialog.open(ResetDialogComponent, {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       data: {
         title: 'Load Demo',
         message: 'Are you sure you want to load the demo? This will override the current board and cannot be undone.',

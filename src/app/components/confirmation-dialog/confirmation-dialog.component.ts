@@ -4,17 +4,17 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-reset-dialog',
+  selector: 'app-confirmation-dialog',
   standalone: true,
   imports: [MatDialogModule,
     MatButtonModule,
     CommonModule],
-  templateUrl: './reset-dialog.component.html',
-  styleUrl: './reset-dialog.component.scss'
+  templateUrl: './confirmation-dialog.component.html',
+  styleUrl: './ConfirmationDialogComponent.component.scss'
 })
-export class ResetDialogComponent {
+export class ConfirmationDialogComponent {
   constructor(
-    public dialogRef: MatDialogRef<ResetDialogComponent>,
+    public dialogRef: MatDialogRef<ConfirmationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
 
