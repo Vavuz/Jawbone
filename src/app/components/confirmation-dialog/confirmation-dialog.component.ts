@@ -10,7 +10,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
     MatButtonModule,
     CommonModule],
   templateUrl: './confirmation-dialog.component.html',
-  styleUrl: './ConfirmationDialogComponent.component.scss'
+  styleUrl: './confirmation-dialog.component.scss'
 })
 export class ConfirmationDialogComponent {
   constructor(
