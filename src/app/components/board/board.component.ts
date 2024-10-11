@@ -172,6 +172,28 @@ export class BoardComponent {
     }
   }
 
+  loadDemo(demoNodes: any[], demoEdges: any[]) {
+    if (this.cy) {
+      this.cy.elements().remove();
+  
+      demoNodes.forEach((node) => {
+        this.cy?.add(node);
+        if (node.data.nodeType === 'node') {
+          this.addHtmlLabelToNode(node.data.id);
+        }
+      });
+  
+      demoEdges.forEach((edge) => {
+        this.cy?.add(edge);
+      });
+  
+      this.snackBar.open('Demo loaded', 'Close', {
+        duration: 3000,
+      });
+    }
+  }
+  
+
   private editNode(node: cytoscape.NodeSingular) {
     const isRelationNode = node.data('nodeType') === 'relation';
     let dialogRef;
@@ -287,8 +309,7 @@ export class BoardComponent {
     if (node.data('nodeType') === 'relation') {
       if (!this.selectedNode) {
         this.snackBar.open(
-          'Connections cannot start from a relation node',
-          'Close',
+          'Connections cannot start from a relation node', 'Close',
           {
             duration: 3000,
           }
