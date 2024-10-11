@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-reset-dialog',
@@ -13,7 +13,10 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
   styleUrl: './reset-dialog.component.scss'
 })
 export class ResetDialogComponent {
-  constructor(public dialogRef: MatDialogRef<ResetDialogComponent>) {}
+  constructor(
+    public dialogRef: MatDialogRef<ResetDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {}
 
   onConfirm(): void {
     this.dialogRef.close(true);
