@@ -245,7 +245,7 @@ export class BoardComponent {
         id: `${this.nodeCounter}`,
         title: result.title,
         description: result.description,
-        nodeType: 'node',
+        nodeType: 'node',    // result.nodeType
       },
       position: { x: 100, y: 100 },
     };
@@ -268,7 +268,7 @@ export class BoardComponent {
         valignBox: 'center',
         cssClass: 'cy-title',
         tpl: (data: any) => `
-          <div style="border: 1px solid #000; border-radius: 5px; padding: 10px; background-color: #fff; cursor: pointer; max-width: 250px; overflow-wrap: break-word;">
+          <div style="border: 1px solid #000; border-radius: 5px; padding: 10px; background-color: #fff; max-width: 250px; overflow-wrap: break-word;">
             <div style="font-weight: bold; text-align: center;">${data.title}</div>
             <hr style="margin: 5px 0;">
             <div style="text-align: left;">${data.description}</div>
