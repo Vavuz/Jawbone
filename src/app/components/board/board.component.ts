@@ -333,10 +333,7 @@ export class BoardComponent {
     return false;
   }
 
-  private areNodesConnected(
-    firstNode: cytoscape.NodeSingular,
-    secondNode: cytoscape.NodeSingular
-  ): boolean {
+  private areNodesConnected(firstNode: cytoscape.NodeSingular, secondNode: cytoscape.NodeSingular): boolean {
     const connectedFinalDestinations = this.getConnectedFinalDestinations(
       firstNode
     );
@@ -346,9 +343,7 @@ export class BoardComponent {
     );
   }
 
-  private getConnectedFinalDestinations(
-    node: cytoscape.NodeSingular
-  ): Set<string> {
+  private getConnectedFinalDestinations(node: cytoscape.NodeSingular): Set<string> {
     const connectedFinalDestinations = new Set<string>();
     const sourceId = node.id();
     const outgoingEdges = this.cy?.$(`#${sourceId}`).outgoers('edge');
@@ -367,10 +362,7 @@ export class BoardComponent {
     return connectedFinalDestinations;
   }
 
-  private checkExistingConnection(
-    connectedFinalDestinations: Set<string>,
-    secondNode: cytoscape.NodeSingular
-  ): boolean {
+  private checkExistingConnection(connectedFinalDestinations: Set<string>, secondNode: cytoscape.NodeSingular): boolean {
     if (connectedFinalDestinations.has(secondNode.id())) {
       return true;
     }
@@ -464,10 +456,7 @@ export class BoardComponent {
     ]);
   }
 
-  private calculateMidpoint(
-    sourcePosition: cytoscape.Position,
-    targetPosition: cytoscape.Position
-  ) {
+  private calculateMidpoint(sourcePosition: cytoscape.Position, targetPosition: cytoscape.Position) {
     let midX, midY;
 
     if (sourcePosition.x === targetPosition.x) {
