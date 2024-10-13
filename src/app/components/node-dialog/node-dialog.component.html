@@ -31,7 +31,7 @@
   <ng-container *ngIf="selectedNodeType === 'argument'">
     <mat-form-field appearance="fill">
       <mat-label>Argument Text</mat-label>
-      <input matInput [formControl]="titleControl" [(ngModel)]="data.title">
+      <input matInput [formControl]="titleControl" [(ngModel)]="data.description">
       <mat-error *ngIf="titleControl.hasError('required')">You must provide an argument text</mat-error>
     </mat-form-field>
   </ng-container>
@@ -39,7 +39,7 @@
   <ng-container *ngIf="selectedNodeType === 'participant'">
     <mat-form-field appearance="fill">
       <mat-label>Participant Name</mat-label>
-      <input matInput [formControl]="titleControl" [(ngModel)]="data.title">
+      <input matInput [formControl]="titleControl" [(ngModel)]="data.description">
       <mat-error *ngIf="titleControl.hasError('required')">You must provide a participant name</mat-error>
     </mat-form-field>
   </ng-container>
