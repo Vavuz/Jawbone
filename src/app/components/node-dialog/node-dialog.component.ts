@@ -121,7 +121,7 @@ export class NodeDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<NodeDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) {}
+  ) { }
 
   onCancel(): void {
     this.dialogRef.close();

@@ -34,18 +34,13 @@ export class RelationDialogComponent {
     'Analogizes', 'Qualifies', 'Acknowledges', 'Counters', 'Extends', 'Refutes',
   ];
 
-  isEditMode: boolean = false;
-  isConnectionToRelationNode: boolean = false;
   matcher = new MyErrorStateMatcher();
   relationControl = new FormControl('', [Validators.required]);
   
   constructor(
     public dialogRef: MatDialogRef<RelationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) {
-    this.isEditMode = data.isEditMode || false;
-    this.isConnectionToRelationNode = data.isConnectionToRelationNode || false;
-  }
+  ) { }
   
 
   onCancel(): void {
