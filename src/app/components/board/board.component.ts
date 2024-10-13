@@ -112,10 +112,19 @@ export class BoardComponent {
     if (!this.cy) return;
 
     this.cy.on('dblclick', 'node', (event) => this.onNodeDoubleClick(event.target));
-    this.cy.on('cxttap', 'node', (event) =>
-      this.showContextMenu(event.target, event.originalEvent)
-    );
+    this.cy.on('cxttap', 'node', (event) => this.showContextMenu(event.target, event.originalEvent));
     this.cy.on('tap', (event) => this.onBackgroundClick(event));
+
+    const container = this.cy!.container();
+    if (!container) return;
+
+    // Pointing cursor on nodes
+    this.cy.on('mouseover', 'node', (event) => {
+      container.style.cursor = 'pointer';
+    });
+    this.cy.on('mouseout', 'node', (event) => {
+      container.style.cursor = 'default';
+    });
 
     this.renderer.listen('document', 'contextmenu', (event) => {
       event.preventDefault();
