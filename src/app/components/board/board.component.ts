@@ -219,6 +219,7 @@ export class BoardComponent {
           title: node.data('title'),
           description: node.data('description'),
           isEditMode: true,
+          nodeType: node.data('nodeType'),
         },
       });
     }
@@ -278,7 +279,7 @@ export class BoardComponent {
         cssClass: 'cy-title',
         tpl: (data: any) => data.nodeType === 'argument' || data.nodeType === 'participant' ? `
         <div style="border: 3px solid ${data.nodeType === 'participant' ? 'green' : '#000'}; border-radius: 5px; padding: 10px; background-color: #fff; max-width: 250px; overflow-wrap: break-word;">
-          <div style="text-align: left;">${data.description}</div>
+          <div style="text-align: left; ${data.nodeType === 'participant' ? 'font-weight: bold;' : ''}">${data.description}</div>
         </div>` : `
         <div style="border: 3px solid #000; border-radius: 5px; padding: 10px; background-color: #fff; max-width: 250px; overflow-wrap: break-word;">
           <div style="font-weight: bold; text-align: center;">${data.title}</div>

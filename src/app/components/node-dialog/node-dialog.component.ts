@@ -121,19 +121,26 @@ export class NodeDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<NodeDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) { }
+  ) {
+    this.selectedNodeType = data.nodeType || 'dialogue';
+  }
 
   onCancel(): void {
     this.dialogRef.close();
   }
 
   onSave(): void {
-    if (this.descriptionControl.valid && this.titleControl.valid) {
+    const isDialogue = this.selectedNodeType === 'dialogue';
+    const validData = isDialogue
+      ? this.descriptionControl.valid && this.titleControl.valid
+      : this.descriptionControl.valid;
+  
+    if (validData) {
       const result = {
         ...this.data,
         nodeType: this.selectedNodeType
       };
       this.dialogRef.close(result);
     }
-  }
+  }  
 }

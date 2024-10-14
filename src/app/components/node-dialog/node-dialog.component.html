@@ -2,11 +2,11 @@
 
 <div mat-dialog-content style="padding-bottom: 0;">
   
-  <mat-radio-group [(ngModel)]="selectedNodeType" class="node-type-selector">
-    <mat-radio-button value="dialogue">Dialogue Node</mat-radio-button>
-    <mat-radio-button value="argument">Argument Node</mat-radio-button>
-    <mat-radio-button value="participant">Participant Node</mat-radio-button>
-  </mat-radio-group>
+  <mat-radio-group [(ngModel)]="selectedNodeType" class="node-type-selector" [disabled]="data.isEditMode">
+    <mat-radio-button *ngIf="!data.isEditMode || selectedNodeType === 'dialogue'" value="dialogue">Dialogue Node</mat-radio-button>
+    <mat-radio-button *ngIf="!data.isEditMode || selectedNodeType === 'argument'" value="argument">Argument Node</mat-radio-button>
+    <mat-radio-button *ngIf="!data.isEditMode || selectedNodeType === 'participant'" value="participant">Participant Node</mat-radio-button>
+  </mat-radio-group><br><br>
 
   <ng-container *ngIf="selectedNodeType === 'dialogue'">
     <mat-form-field appearance="fill" class="wide-select">
@@ -31,16 +31,16 @@
   <ng-container *ngIf="selectedNodeType === 'argument'">
     <mat-form-field appearance="fill">
       <mat-label>Argument Text</mat-label>
-      <input matInput [formControl]="titleControl" [(ngModel)]="data.description">
-      <mat-error *ngIf="titleControl.hasError('required')">You must provide an argument text</mat-error>
+      <input matInput [formControl]="descriptionControl" [(ngModel)]="data.description">
+      <mat-error *ngIf="descriptionControl.hasError('required')">You must provide an argument text</mat-error>
     </mat-form-field>
   </ng-container>
 
   <ng-container *ngIf="selectedNodeType === 'participant'">
     <mat-form-field appearance="fill">
       <mat-label>Participant Name</mat-label>
-      <input matInput [formControl]="titleControl" [(ngModel)]="data.description">
-      <mat-error *ngIf="titleControl.hasError('required')">You must provide a participant name</mat-error>
+      <input matInput [formControl]="descriptionControl" [(ngModel)]="data.description">
+      <mat-error *ngIf="descriptionControl.hasError('required')">You must provide a participant name</mat-error>
     </mat-form-field>
   </ng-container>
 
