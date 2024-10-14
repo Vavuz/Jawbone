@@ -26,7 +26,7 @@ import { FormsModule } from '@angular/forms';
 export class AppComponent {
   title = 'Jawbone';
   isLeftCollapsed = false;
-  isRightCollapsed = true;
+  isRightCollapsed = false;
   newNodeDescription: string = '';
   textBlock: string = '';
 

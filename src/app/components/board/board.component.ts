@@ -112,10 +112,19 @@ export class BoardComponent {
     if (!this.cy) return;
 
     this.cy.on('dblclick', 'node', (event) => this.onNodeDoubleClick(event.target));
-    this.cy.on('cxttap', 'node', (event) =>
-      this.showContextMenu(event.target, event.originalEvent)
-    );
+    this.cy.on('cxttap', 'node', (event) => this.showContextMenu(event.target, event.originalEvent));
     this.cy.on('tap', (event) => this.onBackgroundClick(event));
+
+    const container = this.cy!.container();
+    if (!container) return;
+
+    // Pointing cursor on nodes
+    this.cy.on('mouseover', 'node', (event) => {
+      container.style.cursor = 'pointer';
+    });
+    this.cy.on('mouseout', 'node', (event) => {
+      container.style.cursor = 'default';
+    });
 
     this.renderer.listen('document', 'contextmenu', (event) => {
       event.preventDefault();
@@ -178,7 +187,7 @@ export class BoardComponent {
   
       demoNodes.forEach((node) => {
         this.cy?.add(node);
-        if (node.data.nodeType === 'node') {
+        if (node.data.nodeType !== 'relation') {
           this.addHtmlLabelToNode(node.data.id);
         }
       });
@@ -210,6 +219,7 @@ export class BoardComponent {
           title: node.data('title'),
           description: node.data('description'),
           isEditMode: true,
+          nodeType: node.data('nodeType'),
         },
       });
     }
@@ -245,7 +255,7 @@ export class BoardComponent {
         id: `${this.nodeCounter}`,
         title: result.title,
         description: result.description,
-        nodeType: 'node',
+        nodeType: result.nodeType,
       },
       position: { x: 100, y: 100 },
     };
@@ -267,12 +277,15 @@ export class BoardComponent {
         halignBox: 'center',
         valignBox: 'center',
         cssClass: 'cy-title',
-        tpl: (data: any) => `
-          <div style="border: 1px solid #000; border-radius: 5px; padding: 10px; background-color: #fff; cursor: pointer; max-width: 250px; overflow-wrap: break-word;">
-            <div style="font-weight: bold; text-align: center;">${data.title}</div>
-            <hr style="margin: 5px 0;">
-            <div style="text-align: left;">${data.description}</div>
-          </div>`,
+        tpl: (data: any) => data.nodeType === 'argument' || data.nodeType === 'participant' ? `
+        <div style="border: 3px solid ${data.nodeType === 'participant' ? 'green' : '#000'}; border-radius: 5px; padding: 10px; background-color: #fff; max-width: 250px; overflow-wrap: break-word;">
+          <div style="text-align: left; ${data.nodeType === 'participant' ? 'font-weight: bold;' : ''}">${data.description}</div>
+        </div>` : `
+        <div style="border: 3px solid #000; border-radius: 5px; padding: 10px; background-color: #fff; max-width: 250px; overflow-wrap: break-word;">
+          <div style="font-weight: bold; text-align: center;">${data.title}</div>
+          <hr style="margin: 4px 0;">
+          <div style="text-align: left;">${data.description}</div>
+        </div>`,
       },
     ]);
   }
@@ -321,10 +334,7 @@ export class BoardComponent {
     return false;
   }
 
-  private areNodesConnected(
-    firstNode: cytoscape.NodeSingular,
-    secondNode: cytoscape.NodeSingular
-  ): boolean {
+  private areNodesConnected(firstNode: cytoscape.NodeSingular, secondNode: cytoscape.NodeSingular): boolean {
     const connectedFinalDestinations = this.getConnectedFinalDestinations(
       firstNode
     );
@@ -334,9 +344,7 @@ export class BoardComponent {
     );
   }
 
-  private getConnectedFinalDestinations(
-    node: cytoscape.NodeSingular
-  ): Set<string> {
+  private getConnectedFinalDestinations(node: cytoscape.NodeSingular): Set<string> {
     const connectedFinalDestinations = new Set<string>();
     const sourceId = node.id();
     const outgoingEdges = this.cy?.$(`#${sourceId}`).outgoers('edge');
@@ -355,10 +363,7 @@ export class BoardComponent {
     return connectedFinalDestinations;
   }
 
-  private checkExistingConnection(
-    connectedFinalDestinations: Set<string>,
-    secondNode: cytoscape.NodeSingular
-  ): boolean {
+  private checkExistingConnection(connectedFinalDestinations: Set<string>, secondNode: cytoscape.NodeSingular): boolean {
     if (connectedFinalDestinations.has(secondNode.id())) {
       return true;
     }
@@ -452,10 +457,7 @@ export class BoardComponent {
     ]);
   }
 
-  private calculateMidpoint(
-    sourcePosition: cytoscape.Position,
-    targetPosition: cytoscape.Position
-  ) {
+  private calculateMidpoint(sourcePosition: cytoscape.Position, targetPosition: cytoscape.Position) {
     let midX, midY;
 
     if (sourcePosition.x === targetPosition.x) {

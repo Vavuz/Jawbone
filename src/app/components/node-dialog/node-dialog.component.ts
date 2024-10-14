@@ -1,6 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormsModule, ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
+import {MatRadioModule} from '@angular/material/radio';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -23,6 +24,7 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    MatRadioModule,
     MatDialogModule,
     MatSelectModule,
     CommonModule,
@@ -114,19 +116,31 @@ export class NodeDialogComponent {
   matcher = new MyErrorStateMatcher();
   titleControl = new FormControl('', [Validators.required]);
   descriptionControl = new FormControl('', [Validators.required]);
+  selectedNodeType: 'dialogue' | 'argument' | 'participant' = 'dialogue';
 
   constructor(
     public dialogRef: MatDialogRef<NodeDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) {console.log(this.argumentGroups);}
+  ) {
+    this.selectedNodeType = data.nodeType || 'dialogue';
+  }
 
   onCancel(): void {
     this.dialogRef.close();
   }
 
   onSave(): void {
-    if (this.titleControl.valid && this.descriptionControl.valid) {
-      this.dialogRef.close(this.data);
+    const isDialogue = this.selectedNodeType === 'dialogue';
+    const validData = isDialogue
+      ? this.descriptionControl.valid && this.titleControl.valid
+      : this.descriptionControl.valid;
+  
+    if (validData) {
+      const result = {
+        ...this.data,
+        nodeType: this.selectedNodeType
+      };
+      this.dialogRef.close(result);
     }
-  }
+  }  
 }

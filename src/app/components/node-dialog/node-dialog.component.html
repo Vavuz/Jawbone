@@ -1,22 +1,51 @@
 <h1 mat-dialog-title>{{ data.isEditMode ? 'Edit Node' : 'Add New Node' }}</h1>
+
 <div mat-dialog-content style="padding-bottom: 0;">
-  <mat-form-field appearance="fill" class="wide-select">
-    <mat-label>Argument Type</mat-label>
-    <mat-select [formControl]="titleControl" [(ngModel)]="data.title" [errorStateMatcher]="matcher">
-      <mat-optgroup *ngFor="let group of argumentGroups" [label]="group.name">
-        <mat-option *ngFor="let argument of group.arguments" [value]="argument">
-          {{ argument }}
-        </mat-option>
-      </mat-optgroup>
-    </mat-select>
-    <mat-error *ngIf="titleControl.hasError('required')">You must select an argument type</mat-error>
-  </mat-form-field>  
-  <mat-form-field appearance="fill">
-    <mat-label>Description</mat-label>
-    <input matInput [formControl]="descriptionControl" [(ngModel)]="data.description">
-    <mat-error *ngIf="descriptionControl.hasError('required')">You must provide a description</mat-error>
-  </mat-form-field>
+  
+  <mat-radio-group [(ngModel)]="selectedNodeType" class="node-type-selector" [disabled]="data.isEditMode">
+    <mat-radio-button *ngIf="!data.isEditMode || selectedNodeType === 'dialogue'" value="dialogue">Dialogue Node</mat-radio-button>
+    <mat-radio-button *ngIf="!data.isEditMode || selectedNodeType === 'argument'" value="argument">Argument Node</mat-radio-button>
+    <mat-radio-button *ngIf="!data.isEditMode || selectedNodeType === 'participant'" value="participant">Participant Node</mat-radio-button>
+  </mat-radio-group><br><br>
+
+  <ng-container *ngIf="selectedNodeType === 'dialogue'">
+    <mat-form-field appearance="fill" class="wide-select">
+      <mat-label>Speech Act Type</mat-label>
+      <mat-select [formControl]="titleControl" [(ngModel)]="data.title" [errorStateMatcher]="matcher">
+        <mat-optgroup *ngFor="let group of argumentGroups" [label]="group.name">
+          <mat-option *ngFor="let argument of group.arguments" [value]="argument">
+            {{ argument }}
+          </mat-option>
+        </mat-optgroup>
+      </mat-select>
+      <mat-error *ngIf="titleControl.hasError('required')">You must select a speech act type</mat-error>
+    </mat-form-field>  
+
+    <mat-form-field appearance="fill">
+      <mat-label>Description</mat-label>
+      <input matInput [formControl]="descriptionControl" [(ngModel)]="data.description">
+      <mat-error *ngIf="descriptionControl.hasError('required')">You must provide a description</mat-error>
+    </mat-form-field>
+  </ng-container>
+
+  <ng-container *ngIf="selectedNodeType === 'argument'">
+    <mat-form-field appearance="fill">
+      <mat-label>Argument Text</mat-label>
+      <input matInput [formControl]="descriptionControl" [(ngModel)]="data.description">
+      <mat-error *ngIf="descriptionControl.hasError('required')">You must provide an argument text</mat-error>
+    </mat-form-field>
+  </ng-container>
+
+  <ng-container *ngIf="selectedNodeType === 'participant'">
+    <mat-form-field appearance="fill">
+      <mat-label>Participant Name</mat-label>
+      <input matInput [formControl]="descriptionControl" [(ngModel)]="data.description">
+      <mat-error *ngIf="descriptionControl.hasError('required')">You must provide a participant name</mat-error>
+    </mat-form-field>
+  </ng-container>
+
 </div>
+
 <div mat-dialog-actions class="cancel-save">
   <button mat-button (click)="onCancel()">Cancel</button>
   <button mat-button (click)="onSave()">Save</button>
