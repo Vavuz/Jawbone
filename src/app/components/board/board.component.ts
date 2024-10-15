@@ -476,6 +476,11 @@ export class BoardComponent {
     });
   }
 
+  returnBoardContent(): string {
+    const elements = this.cy?.elements();
+    return elements? JSON.stringify(elements.jsons()) : "";
+  }
+  
   saveNode() {
     this.showModal = false;
   }
