@@ -36,7 +36,6 @@ nodeHtmlLabel(cytoscape);
 })
 export class BoardComponent {
   private cy: cytoscape.Core | undefined;
-  elements: any[] = [];
   newNodeTitle: string = '';
   showModal: boolean = false;
   nodeCounter: number = 0;
@@ -65,7 +64,7 @@ export class BoardComponent {
   private initializeCytoscape() {
     this.cy = cytoscape({
       container: document.getElementById('cy'),
-      elements: this.elements,
+      elements: [],
       style: this.getCytoscapeStyles(),
       layout: { name: 'preset' },
       userZoomingEnabled: true,
@@ -183,7 +182,7 @@ export class BoardComponent {
 
   loadDemo(demoNodes: any[], demoEdges: any[]) {
     if (this.cy) {
-      this.cy.elements().remove();
+      this.cy?.elements().remove();
   
       demoNodes.forEach((node) => {
         this.cy?.add(node);
@@ -261,7 +260,6 @@ export class BoardComponent {
     };
 
     this.nodeCounter++;
-    this.elements.push(newNode);
     const addedNode = this.cy?.add(newNode);
 
     this.addHtmlLabelToNode(newNode.data.id);
