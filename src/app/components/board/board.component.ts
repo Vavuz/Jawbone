@@ -193,7 +193,7 @@ export class BoardComponent {
       demoEdges.forEach((edge) => {
         this.cy?.add(edge);
       });
-  
+
       // Node counter increment
       this.nodeCounter = demoNodes.length;
 
@@ -320,6 +320,7 @@ export class BoardComponent {
         duration: 3000,
       });
       this.selectedNode = null;
+      this.connectionToRelationNode = false;
       return;
     }
 
