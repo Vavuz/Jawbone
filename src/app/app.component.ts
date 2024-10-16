@@ -129,6 +129,14 @@ export class AppComponent {
   }
 
   exportJson(): void {
-    console.log('Export JSON clicked');
+      const boardContent = this.boardComponent.returnBoardContent();
+      const file = new Blob([boardContent], { type: 'application/json' });
+    
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(file);
+      link.download = 'board-content.json';
+
+      link.click();
+      link.remove();
   }
 }
