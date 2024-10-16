@@ -36,7 +36,6 @@ nodeHtmlLabel(cytoscape);
 })
 export class BoardComponent {
   private cy: cytoscape.Core | undefined;
-  newNodeTitle: string = '';
   showModal: boolean = false;
   nodeCounter: number = 0;
   edgeCounter: number = 0;
@@ -182,7 +181,7 @@ export class BoardComponent {
 
   loadDemo(demoNodes: any[], demoEdges: any[]) {
     if (this.cy) {
-      this.cy?.elements().remove();
+      this.clear();
   
       demoNodes.forEach((node) => {
         this.cy?.add(node);
@@ -194,6 +193,17 @@ export class BoardComponent {
       demoEdges.forEach((edge) => {
         this.cy?.add(edge);
       });
+  
+      // Node counter increment
+      this.nodeCounter = demoNodes.length;
+
+      // Edge counter increment
+      const maxEdgeIndex = demoEdges.reduce((maxIndex, edge) => {
+        const baseEdgeId = edge.data.id.split('-')[0].substring(1);
+        const numericBaseId = parseInt(baseEdgeId, 10);
+        return Math.max(maxIndex, numericBaseId);
+      }, 0);
+      this.edgeCounter = maxEdgeIndex;
   
       this.snackBar.open('Demo loaded', 'Close', {
         duration: 3000,
@@ -238,7 +248,7 @@ export class BoardComponent {
   onAddNode(description: string): void {
     const dialogRef = this.dialog.open(NodeDialogComponent, {
       width: '300px',
-      data: { title: this.newNodeTitle, description: description || "Default" },
+      data: { title: "", description: description || "Default" },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -410,6 +420,7 @@ export class BoardComponent {
       });
     } else {
       this.addRelationNodeConnection(result, targetNode);
+      this.nodeCounter++;
     }
     this.edgeCounter++;
   }
@@ -422,7 +433,7 @@ export class BoardComponent {
 
     const relationNode = {
       data: {
-        id: `r${this.edgeCounter}`,
+        id: `r${this.nodeCounter}`,
         title: result.relationType,
         description: '',
         nodeType: 'relation',
@@ -439,7 +450,7 @@ export class BoardComponent {
         data: {
           id: `e${this.edgeCounter}-1`,
           source: this.selectedNode!.id(),
-          target: `r${this.edgeCounter}`,
+          target: `r${this.nodeCounter}`,
           label: result.relationType,
         },
       },
@@ -447,7 +458,7 @@ export class BoardComponent {
         group: 'edges',
         data: {
           id: `e${this.edgeCounter}-2`,
-          source: `r${this.edgeCounter}`,
+          source: `r${this.nodeCounter}`,
           target: targetNode.id(),
           label: result.relationType,
         },
@@ -470,7 +481,10 @@ export class BoardComponent {
   }
 
   clear(): void {
+    this.nodeCounter = 0;
+    this.edgeCounter = 0;
     this.cy?.elements().remove();
+
     this.snackBar.open('The board has been cleared', 'Close', {
       duration: 3000,
     });
