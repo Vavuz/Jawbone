@@ -71,6 +71,7 @@ export class AppComponent {
 
     dialogRef.afterClosed().subscribe((confirmed: boolean) => {
       if (confirmed) {
+        this.textBlock = "";
         this.clearBoard();
       }
     });
