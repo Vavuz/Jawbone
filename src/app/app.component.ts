@@ -106,21 +106,28 @@ export class AppComponent {
   }
 
   loadDemoContent(): void {
+
     const demoNodes = [
-      { data: { id: '1', title: 'Assertion', description: 'This is node 1', nodeType: 'node' }, position: { x: 100, y: 100 } },
-      { data: { id: '2', title: 'Contradiction', description: 'This is node 2', nodeType: 'node' }, position: { x: 250, y: 300 } },
-      { data: { id: '3', title: 'Assertion', description: 'This is node 3', nodeType: 'node' }, position: { x: 400, y: 100 } },
-      { data: { id: 'r1', title: 'Supports', nodeType: 'relation' }, position: { x: 150, y: 200 } },
-      { data: { id: 'r2', title: 'Contradicts', nodeType: 'relation' }, position: { x: 350, y: 200 } },
+      { data: { id: '0', title: '', description: 'Bob', nodeType: 'participant' }},
+      { data: { id: '1', title: '', description: 'Helen', nodeType: 'participant' }},
+      { data: { id: '2', title: '', description: 'Argument by Helen: Common sense is often wrong, isn’t it?', nodeType: 'argument' }},
+      { data: { id: '3', title: '', description: 'Argument by Bob: You just have to use common sense.', nodeType: 'argument' }},
+      { data: { id: '4', title: 'Assertion', description: 'Bob: If you want to reward excellent service, use common sense.', nodeType: 'dialogue' }},
+      { data: { id: '5', title: 'Assertion', description: 'Helen: The practice of tipping leads to discomfort and embarrassment.', nodeType: 'dialogue' }},
+      { data: { id: 'r6', title: 'Contradicts', nodeType: 'relation' }},
+      { data: { id: 'r7', title: 'Supports', nodeType: 'relation' }},
     ];
-  
+
     const demoEdges = [
-      { data: { id: 'e1', source: '1', target: 'r1', label: 'supports' } },
-      { data: { id: 'e2', source: 'r1', target: '2', label: 'supports' } },
-      { data: { id: 'e3', source: '2', target: 'r2', label: 'contradicts' } },
-      { data: { id: 'e4', source: 'r2', target: '3', label: 'contradicts' } },
+      { data: { id: 'e0-1', source: '0', target: 'r6', label: 'contradicts' } },
+      { data: { id: 'e0-2', source: 'r6', target: '2', label: 'contradicts' } },
+      { data: { id: 'e1-1', source: '1', target: 'r6', label: 'contradicts' } },
+      { data: { id: 'e2-1', source: '2', target: 'r7', label: 'supports' } },
+      { data: { id: 'e2-2', source: 'r7', target: '3', label: 'supports' } },
+      { data: { id: 'e3', source: '3', target: '4', label: 'supports' } },
+      { data: { id: 'e4', source: '5', target: 'r7', label: 'supports' } }
     ];
-  
+
     this.boardComponent.loadDemo(demoNodes, demoEdges);
   }
 
