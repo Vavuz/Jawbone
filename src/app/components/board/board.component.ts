@@ -287,18 +287,46 @@ export class BoardComponent {
         halignBox: 'center',
         valignBox: 'center',
         cssClass: 'cy-title',
-        tpl: (data: any) => data.nodeType === 'argument' || data.nodeType === 'participant' ? `
-        <div style="border: 3px solid ${data.nodeType === 'participant' ? 'green' : '#000'}; border-radius: 5px; padding: 10px; background-color: #fff; max-width: 250px; overflow-wrap: break-word;">
-          <div style="text-align: left; ${data.nodeType === 'participant' ? 'font-weight: bold;' : ''}">${data.description}</div>
-        </div>` : `
-        <div style="border: 3px solid #000; border-radius: 5px; padding: 10px; background-color: #fff; max-width: 250px; overflow-wrap: break-word;">
-          <div style="font-weight: bold; text-align: center;">${data.title}</div>
-          <hr style="margin: 4px 0;">
-          <div style="text-align: left;">${data.description}</div>
-        </div>`,
+        tpl: (data: any) => {
+          const borderColor = data.nodeType === 'participant' ? 'green' : '#000';
+          const backgroundColor = data.nodeType === 'participant' ? '#beeeb8' : '#d8eefd';
+          const textStyle = data.nodeType === 'participant' ? 'font-weight: bold;' : '';
+  
+          if (data.nodeType === 'argument' || data.nodeType === 'participant') {
+            return `
+              <div style="
+                border: 3px solid ${borderColor};
+                border-radius: 5px;
+                padding: 10px;
+                background-color: ${backgroundColor};
+                max-width: 250px;
+                overflow-wrap: break-word;">
+                <div style="text-align: left; ${textStyle}">
+                  ${data.description}
+                </div>
+              </div>`;
+          }
+  
+          return `
+            <div style="
+              border: 3px solid #000;
+              border-radius: 5px;
+              padding: 10px;
+              background-color: #fff;
+              max-width: 250px;
+              overflow-wrap: break-word;">
+              <div style="font-weight: bold; text-align: center;">
+                ${data.title}
+              </div>
+              <hr style="margin: 4px 0;">
+              <div style="text-align: left;">
+                ${data.description}
+              </div>
+            </div>`;
+        },
       },
     ]);
-  }
+  }  
 
   private makeNodeGrabbable(node: cytoscape.NodeCollection | undefined) {
     node?.forEach((n) => {

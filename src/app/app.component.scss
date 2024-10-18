@@ -1,7 +1,11 @@
-$sidebar-button-color: #240A34;
-$function-button-color: #891652;
-$reset-button-color: #ff0000c4;
-
+$sidebar-button-color: #99b6d8;
+$function-button-color: #507DBC;
+$reset-button-color: #FF6347;
+$board-background-color: #cdd8e0;
+$sidebar-background-color: #A1C6EA;
+$primary-text-color: #333;
+$hover-shadow: rgba(0, 0, 0, 0.15);
+$border-color: #ccc;
 
 .main-container {
     display: flex;
@@ -10,7 +14,7 @@ $reset-button-color: #ff0000c4;
 
 .sidebar {
     width: 250px;
-    background-color: #EABE6C;
+    background-color: $sidebar-background-color;
     padding: 20px;
     transition: width 0.3s ease;
     border-radius: 15px;
@@ -37,7 +41,7 @@ $reset-button-color: #ff0000c4;
 
 .content {
     flex-grow: 1;
-    background-color: #FFEDD8;
+    background-color: $board-background-color;
     padding: 20px;
     overflow: auto;
     display: flex;
@@ -56,18 +60,18 @@ $reset-button-color: #ff0000c4;
 
 .toggle-button, .reset, .load-dialogue, .load-demo, .export-png, .export-json, .add-node {
     padding: 10px 20px;
-    border-radius: 20px;
+    border-radius: 5px;
     font-weight: bold;
     cursor: pointer;
     outline: none;
     margin-bottom: 15px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s, box-shadow 0.2s;
+    border: none;
 }
 
 .toggle-button:hover, .reset:hover, .load-dialogue:hover, .load-demo:hover, .export-png:hover, .export-json:hover, .add-node:hover {
     transform: translateY(-1px);
-    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15);
+    box-shadow: 0px 6px 10px $hover-shadow;
 }
 
 .left.toggle-button, .right.toggle-button {
@@ -97,14 +101,14 @@ $reset-button-color: #ff0000c4;
     font-size: 18px;
     font-weight: bold;
     margin-bottom: 0.5rem;
-    color: #333;
+    color: $primary-text-color;
 }
 
 .text-block {
     width: 95%;
     min-height: 15rem;
     resize: vertical;
-    border: 1px solid #ccc;
+    border: 1px solid $border-color;
     border-radius: 5px;
 }
 
