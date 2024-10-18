@@ -179,10 +179,10 @@ export class BoardComponent {
     }
   }
 
-  loadDemo(demoNodes: any[], demoEdges: any[]) {
+  loadDemo(demoNodes: any[], demoEdges: any[], layoutType: cytoscape.LayoutOptions = { name: 'grid' }) {
     if (this.cy) {
       this.clear();
-  
+
       demoNodes.forEach((node) => {
         this.cy?.add(node);
         if (node.data.nodeType !== 'relation') {
@@ -193,6 +193,8 @@ export class BoardComponent {
       demoEdges.forEach((edge) => {
         this.cy?.add(edge);
       });
+
+      this.cy.layout(layoutType).run();
 
       // Node counter increment
       this.nodeCounter = demoNodes.length;
@@ -402,10 +404,11 @@ export class BoardComponent {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.addConnection(result, targetNode);
-        this.connectionToRelationNode = false;
       }
       this.selectedNode = null;
     });
+    
+    this.connectionToRelationNode = false;
   }
 
   private addConnection(result: any, targetNode: cytoscape.NodeSingular) {
