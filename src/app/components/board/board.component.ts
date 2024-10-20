@@ -374,13 +374,8 @@ export class BoardComponent {
   }
 
   private areNodesConnected(firstNode: cytoscape.NodeSingular, secondNode: cytoscape.NodeSingular): boolean {
-    const connectedFinalDestinations = this.getConnectedFinalDestinations(
-      firstNode
-    );
-    return this.checkExistingConnection(
-      connectedFinalDestinations,
-      secondNode
-    );
+    const connectedFinalDestinations = this.getConnectedFinalDestinations(firstNode);
+    return this.checkExistingConnection(connectedFinalDestinations, secondNode);
   }
 
   private getConnectedFinalDestinations(node: cytoscape.NodeSingular): Set<string> {
@@ -402,13 +397,13 @@ export class BoardComponent {
     return connectedFinalDestinations;
   }
 
-  private checkExistingConnection(connectedFinalDestinations: Set<string>, secondNode: cytoscape.NodeSingular): boolean {
-    if (connectedFinalDestinations.has(secondNode.id())) {
+  private checkExistingConnection(connectedFinalDestinations: Set<string>, node: cytoscape.NodeSingular): boolean {
+    if (connectedFinalDestinations.has(node.id())) {
       return true;
     }
 
-    if (secondNode.data('nodeType') === 'relation') {
-      const relationOutgoingEdges = secondNode.outgoers('edge');
+    if (node.data('nodeType') === 'relation') {
+      const relationOutgoingEdges = node.outgoers('edge');
       for (let relationEdge of relationOutgoingEdges) {
         if (connectedFinalDestinations.has(relationEdge.target().id())) {
           return true;
