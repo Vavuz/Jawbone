@@ -30,6 +30,12 @@ $border-color: #ccc;
     order: 2;
 }
 
+.sidebar.right {
+    h1 {
+        text-align: right;
+    }
+}
+
 .collapsed {
     width: 0;
     padding: 20px 0;
