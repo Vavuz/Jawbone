@@ -71,6 +71,7 @@ export class AppComponent {
 
     dialogRef.afterClosed().subscribe((confirmed: boolean) => {
       if (confirmed) {
+        this.textBlock = "";
         this.clearBoard();
       }
     });
@@ -128,6 +129,10 @@ export class AppComponent {
       { data: { id: 'e4', source: '5', target: 'r7', label: 'supports' } }
     ];
 
+    this.textBlock = "Bob: if you receive a good service you should tip\n" +
+                     "Helen: No, tippings just leads to discomfort and embarassment.\n" +
+                     "Bob: Oh come one, use common sense, how can you even think that?\n" +
+                     "Helen: Common sense isn't always right though isn't it?";
     this.boardComponent.loadDemo(demoNodes, demoEdges);
   }
 

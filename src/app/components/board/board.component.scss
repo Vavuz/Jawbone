@@ -1,3 +1,9 @@
+$board-background-color: #e6f1fa;
+$modal-content-background-color: #fefefe;
+$modal-overlay-background: rgba(0, 0, 0, 0.4);
+$modal-close-color: #aaa;
+$modal-border-color: #888;
+
 #workingarea {
     display: flex;
     flex-wrap: nowrap;
@@ -5,10 +11,10 @@
 }
 
 #cy {
-    background-color: rgb(247, 246, 209);
-    width: 1300px;
+    background-color: $board-background-color;
+    width: 1350px;
     height: 750px;
-    outline-style: double;
+    border-radius: 5px;
     justify-content: flex-end;
 }
 
@@ -21,8 +27,7 @@
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgb(0,0,0);
-    background-color: rgba(0,0,0,0.4);
+    background-color: $modal-overlay-background;
     padding-top: 60px;
 }
   
@@ -31,15 +36,15 @@
 }
   
 .modal-content {
-    background-color: #fefefe;
+    background-color: $modal-content-background-color;
     margin: 5% auto;
     padding: 20px;
-    border: 1px solid #888;
+    border: 1px solid $modal-border-color;
     width: 80%;
 }
   
 .close {
-    color: #aaa;
+    color: $modal-close-color;
     float: right;
     font-size: 28px;
     font-weight: bold;
@@ -57,14 +62,4 @@
     font-size: 14px;
     font-weight: bold;
     padding: 2px;
-}
-
-.node-html-label {
-    display: inline-block;
-    padding: 10px;
-    background-color: #fff;
-    border: 1px solid #000;
-    border-radius: 5px;
-    max-width: 200px;
-    word-wrap: break-word;
 }
