@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormsModule, ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
-import {MatRadioModule} from '@angular/material/radio';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -145,9 +145,11 @@ export class NodeDialogComponent {
     }
   ];
 
-  matcher = new MyErrorStateMatcher();
+  filteredGroups = [...this.argumentGroups];
+  searchControl = new FormControl('');
   titleControl = new FormControl('', [Validators.required]);
   descriptionControl = new FormControl('', [Validators.required]);
+  matcher = new MyErrorStateMatcher();
   selectedNodeType: 'dialogue' | 'argument' | 'participant' = 'dialogue';
 
   constructor(
@@ -155,6 +157,20 @@ export class NodeDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.selectedNodeType = data.nodeType || 'dialogue';
+  }
+
+  ngOnInit() {
+    this.searchControl.valueChanges.subscribe((searchTerm) => {
+      this.filteredGroups = this.filteredArgumentGroups(searchTerm || '');
+    });
+  }
+
+  filteredArgumentGroups(searchTerm: string = '') {
+    const term = searchTerm?.toLowerCase() || '';
+    return this.argumentGroups.map(group => ({
+      ...group,
+      arguments: group.arguments.filter(argument => argument.toLowerCase().includes(term))
+    })).filter(group => group.arguments.length > 0);
   }
 
   onCancel(): void {
@@ -174,5 +190,5 @@ export class NodeDialogComponent {
       };
       this.dialogRef.close(result);
     }
-  }  
+  }
 }
