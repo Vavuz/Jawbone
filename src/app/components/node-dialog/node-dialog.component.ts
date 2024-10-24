@@ -34,81 +34,113 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
   styleUrls: ['./node-dialog.component.scss']
 })
 export class NodeDialogComponent {
+
   argumentGroups = [
     {
-      name: 'Deductive Arguments',
+      name: 'Generic Types',
       arguments: [
-        'Categorical Syllogism',
-        'Disjunctive Syllogism',
-        'Hypothetical Syllogism',
-        'Modus Ponens',
-        'Modus Tollens',
-      ]
-    },
-    {
-      name: 'Inductive Arguments',
-      arguments: [
-        'Inductive Generalization',
-        'Statistical Syllogism',
-        'Argument from Analogy',
-        'Causal Inference',
-        'Prediction',
-      ]
-    },
-    {
-      name: 'Presumptive Arguments',
-      arguments: [
-        'Argument from Authority',
-        'Argument from Ignorance (Ad Ignorantiam)',
-        'Presumptive Defeasible Generalization',
-      ]
-    },
-    {
-      name: 'Fallacious Arguments',
-      arguments: [
-        'Ad Hominem',
-        'Straw Man',
-        'False Dichotomy (False Dilemma)',
-        'Begging the Question',
-        'Slippery Slope',
-      ]
-    },
-    {
-      name: 'Other Speech Acts',
-      arguments: [
-        'Argument from Sign',
-        'Existential Statement',
-        'Argument by Example',
-        'Argument from Consequences',
-        'Argument from Silence',
-        // -----
-        'Rhetorical Question',
-        'Similarity',
-        'Counter example',
-        'Assertion',
         'Question',
+        'Statement'
+      ]
+    },
+    {
+      name: 'Statements',
+      arguments: [
+        'Ad hominem/Personal attack',
+        'Appeal',
+        'Assertion/Claim',
+        'Assumption',
+        'Categorical statement',
+        'Conclusion',
+        'Conditional statement',
+        'Counter example/Rebuttal',
         'Directive',
-        'Counter-Example',
-        'Rebuttal',
-        'Existential Statement',
-        'Threat',
+        'Existential statement',
+        'Generalisation',
+        'Premise',
+        'Singular statement',
+        'Similarity',
+        'Threat'
       ]
     },
     {
-      name: 'Specialized Argument Types',
+      name: 'Questions',
       arguments: [
-        'Tu Quoque (You Too)',
-        'Appeal to Tradition',
-        'Appeal to Novelty',
-        'Appeal to Popularity (Ad Populum)',
-        'Gambler\'s Fallacy',
+        'Ad hominem question',
+        'Complex question',
+        'Conditional question',
+        'Deliberative question',
+        'Loaded question',
+        'Rhetorical question',
+        'Tricky question',
+        'What question',
+        'Where question',
+        'Which question',
+        'Who question',
+        'Why question',
+        'How question',
+        'Whether question',
+        'Yes-no question'
       ]
     },
     {
-      name: 'Other Argument Types',
+      name: 'Generalisations',
       arguments: [
-        'Appeal to Expert Opinion',
-        'Position to Know',
+        'Absolute/Universal generalisation',
+        'Inductive generalisation',
+        'Presumptive defeasible generalisation'
+      ]
+    },
+    {
+      name: 'Appeals',
+      arguments: [
+        'Appeal to authority',
+        'Appeal to common knowledge',
+        'Appeal to emotions',
+        'Appeal to expert',
+        'Appeal to fear',
+        'Appeal to pity',
+        'Appeal to popular opinion',
+        'Appeal to witness testimony'
+      ]
+    },
+    {
+      name: 'Appeal to Expert Questions',
+      arguments: [
+        'Backup Evidence Question',
+        'Consistency Question',
+        'Expertise Question',
+        'Field Question',
+        'Opinion Question',
+        'Trustworthiness Question'
+      ]
+    },
+    {
+      name: 'Premises',
+      arguments: [
+        'Bad outcome premise',
+        'Base premise',
+        'Character attack premise',
+        'Classification premise',
+        'Commitment premise',
+        'Conditional premise',
+        'Correlation premise',
+        'Credibility questioning premise',
+        'Fearful situation premise',
+        'General acceptance premise',
+        'General premise',
+        'Implicit-Unstated premise',
+        'Inconsistent commitment premise',
+        'Individual premise',
+        'Linkage of commitments premise',
+        'Major premise',
+        'Minor premise',
+        'Opposed commitment premise',
+        'Position to know premise',
+        'Presumption premise',
+        'Recursive premise',
+        'Similarity premise',
+        'Specific premise'
       ]
     }
   ];
