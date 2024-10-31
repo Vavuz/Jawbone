@@ -147,6 +147,11 @@ export class BoardComponent {
       this.hideContextMenu();
       this.editNode(node);
     });
+
+    contextMenuRef.instance.deleteNode.subscribe(() => {
+      this.hideContextMenu();
+      this.deleteNode(node);
+    });
   
     const domElem = (contextMenuRef.hostView as any).rootNodes[0] as HTMLElement;
     domElem.style.position = 'fixed';
@@ -245,7 +250,34 @@ export class BoardComponent {
         }
       }
     });
-  }  
+  }
+
+  private deleteNode(node: cytoscape.NodeSingular) {
+    if (!this.cy || !node) return;
+  
+    // Relation node removal
+    if (node.data('nodeType') === 'relation') {
+      node.connectedEdges().remove();
+      node.remove();
+      return;
+    }
+  
+    // Other nodes removal
+    const connectedEdges = node.connectedEdges();
+    const connectedRelationNodes = node.neighborhood().filter(connected => connected.data('nodeType') === 'relation');
+
+    connectedEdges.remove();
+    node.remove();
+
+    connectedRelationNodes.forEach(element => {
+      const ingoers = element.connectedEdges().filter(edge => edge.data('target') === element.data('id'));
+      const outgoers = element.connectedEdges().filter(edge => edge.data('source') === element.data('id'));
+      if (!outgoers.nonempty() || !ingoers.nonempty()) {
+        element.connectedEdges().remove();
+        element.remove();
+      }
+    });
+  }   
 
   onAddNode(description: string): void {
     const dialogRef = this.dialog.open(NodeDialogComponent, {
