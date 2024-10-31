@@ -7,8 +7,12 @@ import { Component, EventEmitter, Output } from '@angular/core';
 })
 export class ContextMenuComponent {
   @Output() editNode = new EventEmitter<void>();
+  @Output() deleteNode = new EventEmitter<void>();
 
   onEditNode() {
     this.editNode.emit();
+  }
+  onDeleteNode() {
+    this.deleteNode.emit();
   }
 }

@@ -111,8 +111,8 @@ export class AppComponent {
     const demoNodes = [
       { data: { id: '0', title: '', description: 'Bob', nodeType: 'participant' }},
       { data: { id: '1', title: '', description: 'Helen', nodeType: 'participant' }},
-      { data: { id: '2', title: '', description: 'Argument by Helen: Common sense is often wrong, isn’t it?', nodeType: 'argument' }},
-      { data: { id: '3', title: '', description: 'Argument by Bob: You just have to use common sense.', nodeType: 'argument' }},
+      { data: { id: '2', title: '', description: 'Common sense is often wrong, isn’t it?', nodeType: 'argument' }},
+      { data: { id: '3', title: '', description: 'You just have to use common sense.', nodeType: 'argument' }},
       { data: { id: '4', title: 'Assertion', description: 'Bob: If you want to reward excellent service, use common sense.', nodeType: 'dialogue' }},
       { data: { id: '5', title: 'Assertion', description: 'Helen: The practice of tipping leads to discomfort and embarrassment.', nodeType: 'dialogue' }},
       { data: { id: 'r6', title: 'Contradicts', nodeType: 'relation' }},
