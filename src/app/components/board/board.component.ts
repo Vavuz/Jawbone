@@ -94,14 +94,16 @@ export class BoardComponent {
         selector: 'edge',
         style: {
           width: 3,
-          'line-color': '#ccc',
-          'target-arrow-color': '#ccc',
-          'target-arrow-shape': 'triangle',
-          'mid-target-arrow-color': '#ccc',
-          'mid-target-arrow-shape': 'triangle',
+          'line-color': '#666',
+          'line-style': 'solid',
           'curve-style': 'bezier',
-          'control-point-step-size': 75,
-        },
+          'line-fill': 'linear-gradient',
+          'target-arrow-color': '#333',
+          'target-arrow-shape': 'triangle',
+          'mid-target-arrow-color': '#333',
+          'mid-target-arrow-shape': 'triangle',
+          'arrow-scale': 1.5,
+        }
       },
     ];
   }
@@ -129,6 +131,10 @@ export class BoardComponent {
     });
   }
 
+  getCytoscapeInstance() {
+    return this.cy;
+  }
+  
   private onBackgroundClick(event: any) {
     if (event.target === this.cy) {
       this.hideContextMenu();
@@ -209,7 +215,7 @@ export class BoardComponent {
         const baseEdgeId = edge.data.id.split('-')[0].substring(1);
         const numericBaseId = parseInt(baseEdgeId, 10);
         return Math.max(maxIndex, numericBaseId);
-      }, 0);
+      }, 0) + 1;
       this.edgeCounter = maxEdgeIndex;
   
       this.snackBar.open('Demo loaded', 'Close', {
