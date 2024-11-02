@@ -9,6 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 import { FileUploadService } from './services/file-upload/file-upload.service';
 import { FormsModule } from '@angular/forms';
+import { ImageExportService } from './services/image-export/image-export.service';
 
 @Component({
   selector: 'app-root',
@@ -35,7 +36,8 @@ export class AppComponent {
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     public dialog: MatDialog,
-    private fileUploadService: FileUploadService
+    private fileUploadService: FileUploadService,
+    private imageExportService: ImageExportService,
   ) {
     this.initializeSelectionListener();
   }
@@ -46,6 +48,10 @@ export class AppComponent {
         this.newNodeDescription = window.getSelection()!.toString();
       });
     }
+  }
+
+  ngAfterViewInit(): void {
+    this.imageExportService.setCytoscapeInstance(this.boardComponent.getCytoscapeInstance());
   }
 
   addNode(): void {
@@ -137,7 +143,7 @@ export class AppComponent {
   }
 
   exportPng(): void {
-    console.log('Export PNG clicked');
+    this.imageExportService.exportDiagramAsImage('cy');
   }
 
   exportJson(): void {

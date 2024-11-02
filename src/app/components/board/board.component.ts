@@ -131,6 +131,10 @@ export class BoardComponent {
     });
   }
 
+  getCytoscapeInstance() {
+    return this.cy;
+  }
+  
   private onBackgroundClick(event: any) {
     if (event.target === this.cy) {
       this.hideContextMenu();
