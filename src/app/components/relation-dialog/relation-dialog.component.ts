@@ -28,10 +28,11 @@ import { MyErrorStateMatcher } from '../node-dialog/node-dialog.component';impor
 })
 export class RelationDialogComponent {
   relationTypes: string[] = [
-    'Supports', 'Contradicts', 'Leads to', 'Therefore', 'Because', 'Despite', 'Assumes', 'Relies on',
-    'Proves', 'Disproves', 'Highlights', 'Challenges', 'Explains', 'Illustrates', 'Clarifies', 'Justifies',
-    'Questions', 'Strengthens', 'Weakens', 'Restates', 'Infers', 'Concludes', 'Summarizes', 'Contrasts',
-    'Analogizes', 'Qualifies', 'Acknowledges', 'Counters', 'Extends', 'Refutes',
+    'Support', 'Contradict', 'Attack', 'Lead to', 'Assume', 'Rely on', 'Prove',
+    'Disprove', 'Highlight', 'Challenge', 'Explain', 'Clarify', 'Justify',
+    'Question', 'Strengthen', 'Weaken', 'Infer', 'Conclude', 'Summarise',
+    'Acknowledge', 'Counter', 'Extend', 'Refute', 'Rephrase',
+    'Therefore', 'Because', 'Despite', 'Analogy', 'Contrast'
   ];
 
   matcher = new MyErrorStateMatcher();
