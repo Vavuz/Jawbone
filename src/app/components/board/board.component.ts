@@ -190,40 +190,39 @@ export class BoardComponent {
     }
   }
 
-  loadDemo(demoNodes: any[], demoEdges: any[], layoutType: cytoscape.LayoutOptions = { name: 'grid' }) {
-    if (this.cy) {
-      this.clear();
-
-      demoNodes.forEach((node) => {
-        this.cy?.add(node);
-        if (node.data.nodeType !== 'relation') {
-          this.addHtmlLabelToNode(node.data.id);
-        }
-      });
+  loadFromJaw(jsonData: any[], useGridLayout: boolean = false): void {
+    if (!this.cy) return;
+    console.log(jsonData);
+    this.clear();
   
-      demoEdges.forEach((edge) => {
-        this.cy?.add(edge);
-      });
-
-      this.cy.layout(layoutType).run();
-
-      // Node counter increment
-      this.nodeCounter = demoNodes.length;
-
-      // Edge counter increment
-      const maxEdgeIndex = demoEdges.reduce((maxIndex, edge) => {
-        const baseEdgeId = edge.data.id.split('-')[0].substring(1);
-        const numericBaseId = parseInt(baseEdgeId, 10);
-        return Math.max(maxIndex, numericBaseId);
-      }, 0) + 1;
-      this.edgeCounter = maxEdgeIndex;
+    const nodes = jsonData.filter(element => element.group === 'nodes');
+    const edges = jsonData.filter(element => element.group === 'edges');
   
-      this.snackBar.open('Demo loaded', 'Close', {
-        duration: 3000,
-      });
-    }
-  }
+    this.cy.add(nodes);
+    this.cy.add(edges);
   
+    nodes.forEach(node => {
+      if (node.data.nodeType !== 'relation') {
+        this.addHtmlLabelToNode(node.data.id);
+      }
+    });
+  
+    // Increment counters
+    this.nodeCounter = nodes.length;
+    this.edgeCounter = edges.reduce((maxIndex, edge) => {
+      const baseEdgeId = edge.data.id.split('-')[0].substring(1);
+      const numericBaseId = parseInt(baseEdgeId, 10);
+      return Math.max(maxIndex, numericBaseId);
+    }, 0) + 1;
+  
+    // Apply layout
+    const layout = useGridLayout ? { name: 'grid' } : { name: 'preset' };
+    this.cy.layout(layout).run();
+  
+    this.snackBar.open('Diagram loaded', 'Close', {
+      duration: 3000,
+    });
+  }  
 
   private editNode(node: cytoscape.NodeSingular) {
     const isRelationNode = node.data('nodeType') === 'relation';

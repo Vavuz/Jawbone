@@ -94,12 +94,16 @@ export class AppComponent {
 
   upload(event: any) {
     const file: File = event.target.files[0];
-    this.fileUploadService.readFile(file).then((fileContent: string) => {
-      this.textBlock = fileContent;
+    this.fileUploadService.readFile(file).then((fileContent: any) => {
+      if (Array.isArray(fileContent)) {
+        this.boardComponent.loadFromJaw(fileContent);
+      } else {
+        this.textBlock = fileContent;
+      }
     }).catch(error => {
       console.error(error);
     });
-  }  
+  }
 
   loadDemo(): void {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
@@ -144,13 +148,13 @@ export class AppComponent {
     this.imageExportService.exportDiagramAsImage('cy');
   }
 
-  exportJson(): void {
+  exportJaw(): void {
       const boardContent = this.boardComponent.returnBoardContent();
       const file = new Blob([boardContent], { type: 'application/json' });
     
       const link = document.createElement('a');
       link.href = window.URL.createObjectURL(file);
-      link.download = 'board-content.json';
+      link.download = 'board-content.jaw';
 
       link.click();
       link.remove();
