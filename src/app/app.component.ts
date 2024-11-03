@@ -10,6 +10,9 @@ import { ConfirmationDialogComponent } from './components/confirmation-dialog/co
 import { FileUploadService } from './services/file-upload/file-upload.service';
 import { FormsModule } from '@angular/forms';
 import { ImageExportService } from './services/image-export/image-export.service';
+import { HttpClient } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
+import { catchError, of, tap } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -19,7 +22,8 @@ import { ImageExportService } from './services/image-export/image-export.service
     MatButtonModule,
     MatDividerModule,
     MatIconModule,
-    FormsModule
+    FormsModule,
+    HttpClientModule,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
@@ -34,6 +38,7 @@ export class AppComponent {
   @ViewChild(BoardComponent) boardComponent!: BoardComponent;
   
   constructor(
+    private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object,
     public dialog: MatDialog,
     private fileUploadService: FileUploadService,
@@ -113,33 +118,26 @@ export class AppComponent {
   }
 
   loadDemoContent(): void {
-
-    const demoNodes = [
-      { data: { id: '0', title: '', description: 'Bob', nodeType: 'participant' }},
-      { data: { id: '1', title: '', description: 'Helen', nodeType: 'participant' }},
-      { data: { id: '2', title: '', description: 'Common sense is often wrong, isn’t it?', nodeType: 'argument' }},
-      { data: { id: '3', title: '', description: 'You just have to use common sense.', nodeType: 'argument' }},
-      { data: { id: '4', title: 'Assertion', description: 'Bob: If you want to reward excellent service, use common sense.', nodeType: 'dialogue' }},
-      { data: { id: '5', title: 'Assertion', description: 'Helen: The practice of tipping leads to discomfort and embarrassment.', nodeType: 'dialogue' }},
-      { data: { id: 'r6', title: 'Contradicts', nodeType: 'relation' }},
-      { data: { id: 'r7', title: 'Supports', nodeType: 'relation' }},
-    ];
-
-    const demoEdges = [
-      { data: { id: 'e0-1', source: '0', target: 'r6', label: 'contradicts' } },
-      { data: { id: 'e0-2', source: 'r6', target: '2', label: 'contradicts' } },
-      { data: { id: 'e1-1', source: '1', target: 'r6', label: 'contradicts' } },
-      { data: { id: 'e2-1', source: '2', target: 'r7', label: 'supports' } },
-      { data: { id: 'e2-2', source: 'r7', target: '3', label: 'supports' } },
-      { data: { id: 'e3', source: '3', target: '4', label: 'supports' } },
-      { data: { id: 'e4', source: '5', target: 'r7', label: 'supports' } }
-    ];
-
-    this.textBlock = "Bob: if you receive a good service you should tip\n" +
-                     "Helen: No, tippings just leads to discomfort and embarassment.\n" +
-                     "Bob: Oh come one, use common sense, how can you even think that?\n" +
-                     "Helen: Common sense isn't always right though isn't it?";
-    this.boardComponent.loadDemo(demoNodes, demoEdges);
+    this.http.get('assets/demo.jaw', { responseType: 'text' }).pipe(
+      tap((data: string) => {
+        try {
+          const parsedData = JSON.parse(data);
+          this.textBlock = "Alice: I believe taking out a mortgage at a young age is a sign of independence. It allows young people to be self-reliant rather than relying on their parents or public housing.\n" +
+                 "Bob: However, getting into massive debt can be dangerous. Problems arise when debt spirals out of control.\n" +
+                 "Alice: If managed responsibly, a mortgage is a smart investment in one's future.\n" +
+                 "Bob: But many young people take on debt they can't handle, leading to financial crises.\n" +
+                 "Alice: That's why financial education is crucial. Informed decisions come from proper knowledge.\n" +
+                 "Bob: Even with education, unforeseen events can make debt unmanageable. It's not morally neutral if it leads to hardship.";
+          this.boardComponent.loadFromJaw(parsedData, false);
+        } catch (error) {
+          console.error('Error parsing demo content:', error);
+        }
+      }),
+      catchError((error) => {
+        console.error('Error loading demo content:', error);
+        return of(null);
+      })
+    ).subscribe();
   }
 
   exportPng(): void {
