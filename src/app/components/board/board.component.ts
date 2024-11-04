@@ -224,7 +224,24 @@ export class BoardComponent {
     });
   }  
 
-  private editNode(node: cytoscape.NodeSingular) {
+  private updateCounters(nodes: any[], edges: any[]): void {
+    if (nodes.length > 0) {
+      const lastNodeId = nodes[nodes.length - 1].data.id;
+      const matches = lastNodeId.match(/\d+$/);
+      this.nodeCounter = matches ? parseInt(matches[0], 10) + 1 : 0;
+    } else {
+      this.nodeCounter = 0;
+    }
+
+    this.edgeCounter =
+      edges.reduce((maxIndex, edge) => {
+        const baseEdgeId = edge.data.id.split('-')[0].substring(1);
+        const numericBaseId = parseInt(baseEdgeId, 10);
+        return Math.max(maxIndex, numericBaseId);
+      }, 0) + 1;
+  }
+
+  private editNode(node: NodeSingular): void {
     const isRelationNode = node.data('nodeType') === 'relation';
     let dialogRef;
   
