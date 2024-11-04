@@ -1,8 +1,8 @@
 <div class="main-container">
   <div class="sidebar left" [class.collapsed]="isLeftCollapsed">
     <h1>Jawbone</h1>
-    <input hidden type="file" #uploader accept=".txt" (change)="upload($event)" />
-    <button class="load-dialogue" (click)="uploader.click()">📎 Load dialogue file</button>
+    <input hidden type="file" #uploader accept=".txt, .jaw" (change)="upload($event)" />
+    <button class="load-dialogue" (click)="uploader.click()">📎 Load file</button>
     <button class="add-node" (click)="addNode()">+ Add Node</button>
     <p class="text-block-title">Content:</p>
     <textarea type="text" class="text-block" placeholder="Enter text here" [(ngModel)]="textBlock"></textarea>
@@ -22,6 +22,6 @@
     <button class="load-demo" (click)="loadDemo()">Load demo</button>
     <p>Export:</p>
     <button class="export-png" (click)="exportPng()">PNG</button><br>
-    <button class="export-json" (click)="exportJson()">JSON</button>
+    <button class="export-jaw" (click)="exportJaw()">JAW (JSON)</button>
   </div>
 </div>

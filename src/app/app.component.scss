@@ -64,7 +64,7 @@ $border-color: #ccc;
     margin-bottom: 10px;
 }
 
-.toggle-button, .reset, .load-dialogue, .load-demo, .export-png, .export-json, .add-node {
+.toggle-button, .reset, .load-dialogue, .load-demo, .export-png, .export-jaw, .add-node {
     padding: 10px 20px;
     border-radius: 5px;
     font-weight: bold;
@@ -75,7 +75,7 @@ $border-color: #ccc;
     border: none;
 }
 
-.toggle-button:hover, .reset:hover, .load-dialogue:hover, .load-demo:hover, .export-png:hover, .export-json:hover, .add-node:hover {
+.toggle-button:hover, .reset:hover, .load-dialogue:hover, .load-demo:hover, .export-png:hover, .export-jaw:hover, .add-node:hover {
     transform: translateY(-1px);
     box-shadow: 0px 6px 10px $hover-shadow;
 }
@@ -118,7 +118,7 @@ $border-color: #ccc;
     border-radius: 5px;
 }
 
-.load-dialogue, .load-demo, .export-json, .export-png, .add-node {
+.load-dialogue, .load-demo, .export-jaw, .export-png, .add-node {
     background-color: $function-button-color;
     color: white;
 }

@@ -1,6 +1,6 @@
 import { Component, Renderer2, ViewChild, ViewContainerRef, ComponentRef, Inject, PLATFORM_ID } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import cytoscape from 'cytoscape';
+import cytoscape, { Core, NodeSingular, Stylesheet, Position, EventObject } from 'cytoscape';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -12,8 +12,8 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { ContextMenuComponent } from '../context-menu/context-menu.component';
 import { RelationDialogComponent } from '../relation-dialog/relation-dialog.component';
 import { NodeDialogComponent } from '../node-dialog/node-dialog.component';
-
 import nodeHtmlLabel from 'cytoscape-node-html-label';
+
 nodeHtmlLabel(cytoscape);
 
 @Component({
@@ -35,15 +35,15 @@ nodeHtmlLabel(cytoscape);
   styleUrl: './board.component.scss'
 })
 export class BoardComponent {
-  private cy: cytoscape.Core | undefined;
-  showModal: boolean = false;
-  nodeCounter: number = 0;
-  edgeCounter: number = 0;
-  selectedNode?: cytoscape.NodeSingular | null = null;
-  connectionToRelationNode: boolean = false;
+  private cy?: Core;
+  showModal = false;
+  nodeCounter = 0;
+  edgeCounter = 0;
+  selectedNode?: NodeSingular | null = null;
+  connectionToRelationNode = false;
 
   @ViewChild('contextMenuContainer', { read: ViewContainerRef })
-  contextMenuContainer!: ViewContainerRef;
+  private contextMenuContainer!: ViewContainerRef;
   private contextMenuRef: ComponentRef<ContextMenuComponent> | null = null;
 
   constructor(
@@ -60,7 +60,11 @@ export class BoardComponent {
     }
   }
 
-  private initializeCytoscape() {
+  ngOnDestroy(): void {
+    this.cy?.destroy();
+  }
+
+  private initializeCytoscape(): void {
     this.cy = cytoscape({
       container: document.getElementById('cy'),
       elements: [],
@@ -72,7 +76,7 @@ export class BoardComponent {
     });
   }
   
-  private getCytoscapeStyles(): cytoscape.Stylesheet[] {
+  private getCytoscapeStyles(): Stylesheet[] {
     return [
       {
         selector: 'node[nodeType="relation"]',
@@ -108,41 +112,40 @@ export class BoardComponent {
     ];
   }
 
-  private setupEventListeners() {
+  private setupEventListeners(): void {
     if (!this.cy) return;
 
     this.cy.on('dblclick', 'node', (event) => this.onNodeDoubleClick(event.target));
     this.cy.on('cxttap', 'node', (event) => this.showContextMenu(event.target, event.originalEvent));
     this.cy.on('tap', (event) => this.onBackgroundClick(event));
 
+    this.renderer.listen('document', 'contextmenu', (event) => {
+      event.preventDefault();
+    });
+
     const container = this.cy!.container();
     if (!container) return;
 
-    // Pointing cursor on nodes
     this.cy.on('mouseover', 'node', (event) => {
       container.style.cursor = 'pointer';
     });
     this.cy.on('mouseout', 'node', (event) => {
       container.style.cursor = 'default';
     });
-
-    this.renderer.listen('document', 'contextmenu', (event) => {
-      event.preventDefault();
-    });
   }
 
-  getCytoscapeInstance() {
+  getCytoscapeInstance() : Core | undefined {
     return this.cy;
   }
   
-  private onBackgroundClick(event: any) {
+  private onBackgroundClick(event: EventObject): void {
     if (event.target === this.cy) {
       this.hideContextMenu();
       this.selectedNode = null;
     }
   }
 
-  private showContextMenu(node: cytoscape.NodeSingular, event: MouseEvent) {
+  private showContextMenu(node: NodeSingular, event: MouseEvent): void {
     this.hideContextMenu();
   
     const contextMenuRef = this.contextMenuContainer.createComponent(
@@ -163,7 +166,6 @@ export class BoardComponent {
     domElem.style.position = 'fixed';
   
     const containerRect = this.cy!.container()!.getBoundingClientRect();
-  
     const pan = this.cy!.pan();
     const zoom = this.cy!.zoom();
     const modelPosition = node.position();
@@ -183,49 +185,57 @@ export class BoardComponent {
     this.contextMenuRef = contextMenuRef;
   }  
 
-  private hideContextMenu() {
+  private hideContextMenu(): void {
     if (this.contextMenuRef) {
       this.contextMenuRef.destroy();
       this.contextMenuRef = null;
     }
   }
 
-  loadDemo(demoNodes: any[], demoEdges: any[], layoutType: cytoscape.LayoutOptions = { name: 'grid' }) {
-    if (this.cy) {
-      this.clear();
-
-      demoNodes.forEach((node) => {
-        this.cy?.add(node);
-        if (node.data.nodeType !== 'relation') {
-          this.addHtmlLabelToNode(node.data.id);
-        }
-      });
+  loadFromJaw(jsonData: any[], useGridLayout: boolean = false): void {
+    if (!this.cy) return;
+    this.clear();
   
-      demoEdges.forEach((edge) => {
-        this.cy?.add(edge);
-      });
+    const nodes = jsonData.filter(element => element.group === 'nodes');
+    const edges = jsonData.filter(element => element.group === 'edges');
+  
+    this.cy.add(nodes);
+    this.cy.add(edges);
+  
+    nodes.forEach(node => {
+      if (node.data.nodeType !== 'relation') {
+        this.addHtmlLabelToNode(node.data.id);
+      }
+    });
+  
+    this.updateCounters(nodes, edges);
+  
+    const layout = useGridLayout ? { name: 'grid' } : { name: 'preset' };
+    this.cy.layout(layout).run();
+  
+    this.snackBar.open('Diagram loaded', 'Close', {
+      duration: 3000,
+    });
+  }
 
-      this.cy.layout(layoutType).run();
+  private updateCounters(nodes: any[], edges: any[]): void {
+    if (nodes.length > 0) {
+      const lastNodeId = nodes[nodes.length - 1].data.id;
+      const matches = lastNodeId.match(/\d+$/);
+      this.nodeCounter = matches ? parseInt(matches[0], 10) + 1 : 0;
+    } else {
+      this.nodeCounter = 0;
+    }
 
-      // Node counter increment
-      this.nodeCounter = demoNodes.length;
-
-      // Edge counter increment
-      const maxEdgeIndex = demoEdges.reduce((maxIndex, edge) => {
+    this.edgeCounter =
+      edges.reduce((maxIndex, edge) => {
         const baseEdgeId = edge.data.id.split('-')[0].substring(1);
         const numericBaseId = parseInt(baseEdgeId, 10);
         return Math.max(maxIndex, numericBaseId);
       }, 0) + 1;
-      this.edgeCounter = maxEdgeIndex;
-  
-      this.snackBar.open('Demo loaded', 'Close', {
-        duration: 3000,
-      });
-    }
   }
-  
 
-  private editNode(node: cytoscape.NodeSingular) {
+  private editNode(node: NodeSingular): void {
     const isRelationNode = node.data('nodeType') === 'relation';
     let dialogRef;
   
@@ -258,7 +268,7 @@ export class BoardComponent {
     });
   }
 
-  private deleteNode(node: cytoscape.NodeSingular) {
+  private deleteNode(node: NodeSingular): void {
     if (!this.cy || !node) return;
   
     // Relation node removal
@@ -298,7 +308,7 @@ export class BoardComponent {
     });
   }
 
-  private createNewNode(result: any) {
+  private createNewNode(result: any): void {
     const newNode = {
       data: {
         id: `${this.nodeCounter}`,
@@ -316,7 +326,7 @@ export class BoardComponent {
     this.makeNodeGrabbable(addedNode);
   }
 
-  private addHtmlLabelToNode(nodeId: string) {
+  private addHtmlLabelToNode(nodeId: string): void {
     this.cy?.nodeHtmlLabel([
       {
         query: `node[id="${nodeId}"]`,
@@ -325,48 +335,51 @@ export class BoardComponent {
         halignBox: 'center',
         valignBox: 'center',
         cssClass: 'cy-title',
-        tpl: (data: any) => {
-          const borderColor = data.nodeType === 'participant' ? 'green' : '#000';
-          const backgroundColor = data.nodeType === 'participant' ? '#beeeb8' : '#d8eefd';
-          const textStyle = data.nodeType === 'participant' ? 'font-weight: bold;' : '';
-  
-          if (data.nodeType === 'argument' || data.nodeType === 'participant') {
-            return `
-              <div style="
-                border: 3px solid ${borderColor};
-                border-radius: 5px;
-                padding: 10px;
-                background-color: ${backgroundColor};
-                max-width: 250px;
-                overflow-wrap: break-word;">
-                <div style="text-align: left; ${textStyle}">
-                  ${data.description}
-                </div>
-              </div>`;
-          }
-  
-          return `
-            <div style="
-              border: 3px solid #000;
-              border-radius: 5px;
-              padding: 10px;
-              background-color: #fff;
-              max-width: 250px;
-              overflow-wrap: break-word;">
-              <div style="font-weight: bold; text-align: center;">
-                ${data.title}
-              </div>
-              <hr style="margin: 4px 0;">
-              <div style="text-align: left;">
-                ${data.description}
-              </div>
-            </div>`;
-        },
+        tpl: (data: any) => this.generateNodeTemplate(data),
       },
     ]);
-  }  
+  }
 
-  private makeNodeGrabbable(node: cytoscape.NodeCollection | undefined) {
+  private generateNodeTemplate(data: any): string {
+    const isParticipant = data.nodeType === 'participant';
+    const borderColor = isParticipant ? 'green' : '#000';
+    const backgroundColor = isParticipant ? '#beeeb8' : '#d8eefd';
+    const textStyle = isParticipant ? 'font-weight: bold;' : '';
+
+    if (['argument', 'participant'].includes(data.nodeType)) {
+      return `
+        <div style="
+          border: 3px solid ${borderColor};
+          border-radius: 5px;
+          padding: 10px;
+          background-color: ${backgroundColor};
+          max-width: 250px;
+          overflow-wrap: break-word;">
+          <div style="text-align: left; ${textStyle}">
+            ${data.description}
+          </div>
+        </div>`;
+    }
+
+    return `
+      <div style="
+        border: 3px solid #000;
+        border-radius: 5px;
+        padding: 10px;
+        background-color: #fff;
+        max-width: 250px;
+        overflow-wrap: break-word;">
+        <div style="font-weight: bold; text-align: center;">
+          ${data.title}
+        </div>
+        <hr style="margin: 4px 0;">
+        <div style="text-align: left;">
+          ${data.description}
+        </div>
+      </div>`;
+  }
+
+  private makeNodeGrabbable(node: NodeSingular | undefined): void {
     node?.forEach((n) => {
       n.grabify();
       n.on('grab', () => {
@@ -375,7 +388,7 @@ export class BoardComponent {
     });
   }
 
-  private onNodeDoubleClick(node: cytoscape.NodeSingular) {
+  private onNodeDoubleClick(node: NodeSingular): void {
     if (this.isInvalidConnectionStart(node)) return;
 
     if (!this.selectedNode) {
@@ -395,7 +408,7 @@ export class BoardComponent {
     this.createConnection(node);
   }
 
-  private isInvalidConnectionStart(node: cytoscape.NodeSingular) {
+  private isInvalidConnectionStart(node: NodeSingular): boolean {
     if (node.data('nodeType') === 'relation') {
       if (!this.selectedNode) {
         this.snackBar.open(
@@ -411,12 +424,12 @@ export class BoardComponent {
     return false;
   }
 
-  private areNodesConnected(firstNode: cytoscape.NodeSingular, secondNode: cytoscape.NodeSingular): boolean {
+  private areNodesConnected(firstNode: NodeSingular, secondNode: NodeSingular): boolean {
     const connectedFinalDestinations = this.getConnectedFinalDestinations(firstNode);
     return this.checkExistingConnection(connectedFinalDestinations, secondNode);
   }
 
-  private getConnectedFinalDestinations(node: cytoscape.NodeSingular): Set<string> {
+  private getConnectedFinalDestinations(node: NodeSingular): Set<string> {
     const connectedFinalDestinations = new Set<string>();
     const sourceId = node.id();
     const outgoingEdges = this.cy?.$(`#${sourceId}`).outgoers('edge');
@@ -435,7 +448,7 @@ export class BoardComponent {
     return connectedFinalDestinations;
   }
 
-  private checkExistingConnection(connectedFinalDestinations: Set<string>, node: cytoscape.NodeSingular): boolean {
+  private checkExistingConnection(connectedFinalDestinations: Set<string>, node: NodeSingular): boolean {
     if (connectedFinalDestinations.has(node.id())) {
       return true;
     }
@@ -451,7 +464,7 @@ export class BoardComponent {
     return false;
   }
 
-  private createConnection(targetNode: cytoscape.NodeSingular) {
+  private createConnection(targetNode: NodeSingular): void {
     const dialogRef = this.dialog.open(RelationDialogComponent, {
       width: '300px',
       data: {
@@ -472,7 +485,7 @@ export class BoardComponent {
     this.connectionToRelationNode = false;
   }
 
-  private addConnection(result: any, targetNode: cytoscape.NodeSingular) {
+  private addConnection(result: any, targetNode: NodeSingular): void {
     if (result.directConnection) {
       this.cy?.add({
         group: 'edges',
@@ -490,7 +503,7 @@ export class BoardComponent {
     this.edgeCounter++;
   }
 
-  private addRelationNodeConnection(result: any, targetNode: cytoscape.NodeSingular) {
+  private addRelationNodeConnection(result: any, targetNode: NodeSingular): void {
     const midPoint = this.calculateMidpoint(
       this.selectedNode!.position(),
       targetNode.position()
@@ -531,7 +544,7 @@ export class BoardComponent {
     ]);
   }
 
-  private calculateMidpoint(sourcePosition: cytoscape.Position, targetPosition: cytoscape.Position) {
+  private calculateMidpoint(sourcePosition: Position, targetPosition: Position): Position {
     let midX, midY;
 
     if (sourcePosition.x === targetPosition.x) {
@@ -560,11 +573,11 @@ export class BoardComponent {
     return elements? JSON.stringify(elements.jsons()) : "";
   }
   
-  saveNode() {
+  saveNode(): void {
     this.showModal = false;
   }
 
-  cancelNode() {
+  cancelNode(): void {
     this.showModal = false;
   }
 }

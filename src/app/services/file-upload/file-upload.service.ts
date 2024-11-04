@@ -4,20 +4,23 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class FileUploadService {
-
-  constructor() { }
-
-  readFile(file: File): Promise<string> {
+  async readFile(file: File): Promise<any> {
     return new Promise((resolve, reject) => {
-      let fileReader: FileReader = new FileReader();
-      fileReader.onloadend = () => {
-        if (fileReader.result) {
-          resolve(fileReader.result.toString());
-        } else {
-          reject('File could not be read');
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const content = reader.result as string;
+          if (file.name.endsWith('.jaw')) {
+            resolve(JSON.parse(content));
+          } else {
+            resolve(content);
+          }
+        } catch (error) {
+          reject(`Error parsing file: ${error}`);
         }
       };
-      fileReader.readAsText(file);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsText(file);
     });
   }
 }
