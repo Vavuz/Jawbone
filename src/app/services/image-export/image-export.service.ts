@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
-import html2canvas from 'html2canvas';
+import { Injectable, Inject } from '@angular/core';
 import cytoscape from 'cytoscape';
+import { HTML2CANVAS } from './html2canvas.token';
+import { Options } from 'html2canvas';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +9,9 @@ import cytoscape from 'cytoscape';
 export class ImageExportService {
   private cy?: cytoscape.Core;
 
-  constructor() {}
+  constructor(
+    @Inject(HTML2CANVAS) private html2canvasFn: (element: HTMLElement, options?: Options) => Promise<HTMLCanvasElement>
+  ) {}
 
   setCytoscapeInstance(cy?: cytoscape.Core) {
     this.cy = cy;
@@ -55,12 +58,11 @@ export class ImageExportService {
       // Allow the layout to update
       await new Promise((resolve) => setTimeout(resolve, 200));
 
-      const canvas = await html2canvas(element, {
+      const canvas = await this.html2canvasFn(element, {
         scale: scaleFactor,
         useCORS: true,
-      });
+      } as Options);      
 
-      // Trigger download
       const link = document.createElement('a');
       link.href = canvas.toDataURL('image/png');
       link.download = `${filename}.png`;
@@ -68,8 +70,9 @@ export class ImageExportService {
     } catch (error) {
       console.error('Error exporting diagram as PNG:', error);
     } finally {
-      // Restore original pan and zoom
       this.cy.viewport(initialViewport);
     }
   }
 }
+
+export { HTML2CANVAS };

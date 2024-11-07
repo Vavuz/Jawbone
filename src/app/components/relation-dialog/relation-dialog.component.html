@@ -1,13 +1,23 @@
-<h1 mat-dialog-title>{{ data.isEditMode ? 'Select New Relation Type' : 'Select Relation Type' }}</h1>
+<h1 mat-dialog-title>
+  {{ data.isEditMode ? 'Select New Relation Type' : 'Select Relation Type' }}
+</h1>
 <div mat-dialog-content style="padding-bottom: 0;">
-  <mat-form-field appearance="fill" class="wide-select" *ngIf="!data.isConnectionToRelationNode">
-    <mat-label>Relation Type</mat-label>
-    <mat-select [formControl]="relationControl" [(ngModel)]="data.relationType">
-      <mat-option *ngFor="let relation of relationTypes" [value]="relation">{{ relation }}</mat-option>
-    </mat-select>
-    <mat-error *ngIf="relationControl.hasError('required') && !data.directConnection">You must select a relation type</mat-error>
-  </mat-form-field>
-  <mat-checkbox *ngIf="!data.isEditMode" [(ngModel)]="data.directConnection">Do not add a relation node</mat-checkbox>
+  <form [formGroup]="relationForm">
+    <mat-form-field appearance="fill" class="wide-select" *ngIf="!data.isConnectionToRelationNode">
+      <mat-label>Relation Type</mat-label>
+      <mat-select formControlName="relationType">
+        <mat-option *ngFor="let relation of relationTypes" [value]="relation">
+          {{ relation }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="relationControl.hasError('required') && !directConnectionControl.value">
+        You must select a relation type
+      </mat-error>
+    </mat-form-field>
+    <mat-checkbox formControlName="directConnection" *ngIf="!data.isEditMode">
+      Do not add a relation node
+    </mat-checkbox>
+  </form>
 </div>
 <div mat-dialog-actions class="cancel-save">
   <button mat-button (click)="onCancel()">Cancel</button>
