@@ -1,19 +1,21 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
-import { CommonModule } from '@angular/common';
-import { MyErrorStateMatcher } from '../node-dialog/node-dialog.component';import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MyErrorStateMatcher } from '../node-dialog/node-dialog.component';
 
 @Component({
   selector: 'app-relation-dialog',
   standalone: true,
   imports: [
-    FormsModule,
+    CommonModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
@@ -21,12 +23,11 @@ import { MyErrorStateMatcher } from '../node-dialog/node-dialog.component';impor
     MatDialogModule,
     MatSelectModule,
     MatCheckboxModule,
-    CommonModule,
   ],
   templateUrl: './relation-dialog.component.html',
   styleUrls: ['./relation-dialog.component.scss'],
 })
-export class RelationDialogComponent {
+export class RelationDialogComponent implements OnInit {
   relationTypes: string[] = [
     'Support', 'Contradict', 'Attack', 'Lead to', 'Assume', 'Rely on', 'Prove',
     'Disprove', 'Highlight', 'Challenge', 'Explain', 'Clarify', 'Justify',
@@ -36,25 +37,60 @@ export class RelationDialogComponent {
   ];
 
   matcher = new MyErrorStateMatcher();
-  relationControl = new FormControl('', [Validators.required]);
-  
+
+  relationForm: FormGroup;
+  relationControl: FormControl;
+  directConnectionControl: FormControl;
+
   constructor(
     public dialogRef: MatDialogRef<RelationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) { }
-  
+  ) {
+    this.relationControl = new FormControl(
+      this.data.relationType || '',
+      Validators.required
+    );
+    this.directConnectionControl = new FormControl(
+      this.data.directConnection || false
+    );
+
+    this.relationForm = new FormGroup({
+      relationType: this.relationControl,
+      directConnection: this.directConnectionControl
+    });
+  }
+
+  ngOnInit() {
+    this.directConnectionControl.valueChanges.subscribe(() => {
+      this.updateValidators();
+    });
+  }
 
   onCancel(): void {
     this.dialogRef.close();
   }
-  
+
   onSave(): void {
     if (this.isValid()) {
-      this.dialogRef.close(this.data);
+      const result = {
+        ...this.data,
+        relationType: this.relationControl.value,
+        directConnection: this.directConnectionControl.value
+      };
+      this.dialogRef.close(result);
     }
   }
-  
+
   isValid(): boolean {
-    return this.data.directConnection || this.relationControl.valid;
+    return this.directConnectionControl.value || this.relationControl.valid;
+  }
+
+  updateValidators(): void {
+    if (this.directConnectionControl.value) {
+      this.relationControl.clearValidators();
+    } else {
+      this.relationControl.setValidators([Validators.required]);
+    }
+    this.relationControl.updateValueAndValidity();
   }
 }
