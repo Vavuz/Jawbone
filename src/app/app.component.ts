@@ -5,7 +5,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 import { FileUploadService } from './services/file-upload/file-upload.service';
 import { FormsModule } from '@angular/forms';
@@ -22,11 +22,12 @@ import { catchError, of, tap } from 'rxjs';
     MatButtonModule,
     MatDividerModule,
     MatIconModule,
+    MatDialogModule,
     FormsModule,
     HttpClientModule,
   ],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
   title = 'Jawbone';
