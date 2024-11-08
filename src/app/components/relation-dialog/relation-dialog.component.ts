@@ -36,6 +36,8 @@ export class RelationDialogComponent implements OnInit {
     'Therefore', 'Because', 'Despite', 'Analogy', 'Contrast'
   ];
 
+  filteredRelationTypes: string[] = [...this.relationTypes];
+  searchControl = new FormControl('');
   matcher = new MyErrorStateMatcher();
 
   relationForm: FormGroup;
@@ -64,6 +66,17 @@ export class RelationDialogComponent implements OnInit {
     this.directConnectionControl.valueChanges.subscribe(() => {
       this.updateValidators();
     });
+
+    this.searchControl.valueChanges.subscribe((searchTerm) => {
+      this.filteredRelationTypes = this.filterRelations(searchTerm || '');
+    });
+  }
+
+  filterRelations(searchTerm: string): string[] {
+    const term = searchTerm.toLowerCase();
+    return this.relationTypes.filter(relation =>
+      relation.toLowerCase().includes(term)
+    );
   }
 
   onCancel(): void {
