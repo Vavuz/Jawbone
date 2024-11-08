@@ -10,6 +10,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MyErrorStateMatcher } from '../node-dialog/node-dialog.component';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-relation-dialog',
@@ -28,15 +30,8 @@ import { MyErrorStateMatcher } from '../node-dialog/node-dialog.component';
   styleUrls: ['./relation-dialog.component.scss'],
 })
 export class RelationDialogComponent implements OnInit {
-  relationTypes: string[] = [
-    'Support', 'Contradict', 'Attack', 'Lead to', 'Assume', 'Rely on', 'Prove',
-    'Disprove', 'Highlight', 'Challenge', 'Explain', 'Clarify', 'Justify',
-    'Question', 'Strengthen', 'Weaken', 'Infer', 'Conclude', 'Summarise',
-    'Acknowledge', 'Counter', 'Extend', 'Refute', 'Rephrase',
-    'Therefore', 'Because', 'Despite', 'Analogy', 'Contrast'
-  ];
-
-  filteredRelationTypes: string[] = [...this.relationTypes];
+  relationTypes: string[] = [];
+  filteredRelationTypes: string[] = [];
   searchControl = new FormControl('');
   matcher = new MyErrorStateMatcher();
 
@@ -45,6 +40,7 @@ export class RelationDialogComponent implements OnInit {
   directConnectionControl: FormControl;
 
   constructor(
+    private http: HttpClient,
     public dialogRef: MatDialogRef<RelationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
@@ -63,6 +59,11 @@ export class RelationDialogComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.loadRelationTypes().subscribe((data: string[]) => {
+      this.relationTypes = data;
+      this.filteredRelationTypes = [...this.relationTypes];
+    });
+
     this.directConnectionControl.valueChanges.subscribe(() => {
       this.updateValidators();
     });
@@ -70,6 +71,10 @@ export class RelationDialogComponent implements OnInit {
     this.searchControl.valueChanges.subscribe((searchTerm) => {
       this.filteredRelationTypes = this.filterRelations(searchTerm || '');
     });
+  }
+
+  loadRelationTypes(): Observable<string[]> {
+    return this.http.get<string[]>('assets/relation-types.json');
   }
 
   filterRelations(searchTerm: string): string[] {
