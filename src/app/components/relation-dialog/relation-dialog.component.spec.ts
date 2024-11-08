@@ -103,6 +103,17 @@ describe('RelationDialogComponent', () => {
     expect(component.relationControl.hasError('required')).toBeFalse();
   });
 
+  it('should filter relations based on search term', () => {
+    component.searchControl.setValue('Attack');
+    fixture.detectChanges();
+
+    const filteredRelations = component.filteredRelations(component.searchControl.value!);
+
+    expect(filteredRelations).toContain('Attack');
+    expect(filteredRelations).not.toContain('Support');
+    expect(filteredRelations).not.toContain('Therefore');
+  });
+
   it('should disable the relation type selection if connected to a relation node', () => {
     component.data.isConnectionToRelationNode = true;
     fixture.detectChanges();

@@ -1,4 +1,4 @@
-import { Component, Inject, PLATFORM_ID, ViewChild } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit, PLATFORM_ID, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { BoardComponent } from './components/board/board.component';
 import { isPlatformBrowser } from '@angular/common';
@@ -13,6 +13,7 @@ import { ImageExportService } from './services/image-export/image-export.service
 import { HttpClient } from '@angular/common/http';
 import { HttpClientModule } from '@angular/common/http';
 import { catchError, of, tap } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-root',
@@ -29,7 +30,7 @@ import { catchError, of, tap } from 'rxjs';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
   title = 'Jawbone';
   isLeftCollapsed = false;
   isRightCollapsed = false;
@@ -37,11 +38,12 @@ export class AppComponent {
   textBlock: string = '';
 
   @ViewChild(BoardComponent) boardComponent!: BoardComponent;
-  
+
   constructor(
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object,
     public dialog: MatDialog,
+    private snackBar: MatSnackBar,
     private fileUploadService: FileUploadService,
     private imageExportService: ImageExportService,
   ) {
@@ -54,6 +56,29 @@ export class AppComponent {
         this.newNodeDescription = window.getSelection()!.toString();
       });
     }
+  }
+
+  ngOnInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      window.addEventListener('beforeunload', this.beforeUnloadHandler);
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      window.removeEventListener('beforeunload', this.beforeUnloadHandler);
+    }
+  }
+
+  private beforeUnloadHandler = (event: BeforeUnloadEvent) => {
+    if (this.hasUnsavedChanges()) {
+      event.preventDefault();
+      event.returnValue = '';
+    }
+  };
+
+  private hasUnsavedChanges(): boolean {
+    return this.textBlock.trim().length > 0 || this.boardComponent.nodeCounter > 0;
   }
 
   ngAfterViewInit(): void {
@@ -93,8 +118,35 @@ export class AppComponent {
     this.boardComponent.clear();
   }
 
-  upload(event: any) {
+  upload(event: any, fileType: 'txt' | 'jaw') {
     const file: File = event.target.files[0];
+    if (!file) {
+      return;
+    }
+
+    const fileName = file.name;
+    const fileExtension = fileName.split('.').pop()?.toLowerCase();
+
+    if (fileType === 'txt' && fileExtension !== 'txt') {
+      this.snackBar.open(
+        'File not supported.', 'Close',
+        {
+          duration: 3000,
+        }
+      );
+      return;
+    }
+
+    if (fileType === 'jaw' && fileExtension !== 'jaw') {
+      this.snackBar.open(
+        'File not supported.', 'Close',
+        {
+          duration: 3000,
+        }
+      );
+      return;
+    }
+
     this.fileUploadService.readFile(file).then((fileContent: any) => {
       if (Array.isArray(fileContent)) {
         this.boardComponent.loadFromJaw(fileContent);
@@ -103,6 +155,12 @@ export class AppComponent {
       }
     }).catch(error => {
       console.error(error);
+      this.snackBar.open(
+        'File upload error.', 'Close',
+        {
+          duration: 3000,
+        }
+      );
     });
   }
 

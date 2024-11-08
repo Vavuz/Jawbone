@@ -69,7 +69,7 @@ export class RelationDialogComponent implements OnInit {
     });
 
     this.searchControl.valueChanges.subscribe((searchTerm) => {
-      this.filteredRelationTypes = this.filterRelations(searchTerm || '');
+      this.filteredRelationTypes = this.filteredRelations(searchTerm || '');
     });
   }
 
@@ -77,7 +77,7 @@ export class RelationDialogComponent implements OnInit {
     return this.http.get<string[]>('assets/relation-types.json');
   }
 
-  filterRelations(searchTerm: string): string[] {
+  filteredRelations(searchTerm: string): string[] {
     const term = searchTerm.toLowerCase();
     return this.relationTypes.filter(relation =>
       relation.toLowerCase().includes(term)
