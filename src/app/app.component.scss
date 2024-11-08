@@ -46,7 +46,7 @@ $border-color: #ccc;
     text-decoration: none;
     font-weight: bold;
     display: inline-block;
-    margin: 15px 0 60px 0;
+    margin: 10px 0;
 }
 
 .sidebar.right a:hover {
@@ -58,6 +58,7 @@ $border-color: #ccc;
     font-style: italic;
     color: $primary-text-color;
     margin-bottom: 10px;
+    padding-top: 100px;
 }
 
 .collapsed {
@@ -137,11 +138,12 @@ $border-color: #ccc;
 }
 
 .text-block {
-    width: 95%;
+    width: 97%;
     min-height: 15rem;
     resize: vertical;
     border: 1px solid $border-color;
     border-radius: 5px;
+    margin-top: 10px;
 }
 
 .load-dialogue, .load-demo, .export-jaw, .export-png, .add-node {

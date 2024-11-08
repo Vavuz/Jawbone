@@ -1,17 +1,19 @@
 <div class="main-container">
   <div class="sidebar left" [class.collapsed]="isLeftCollapsed">
     <h1>Jawbone</h1>
-    <input hidden type="file" #uploader accept=".txt, .jaw" (change)="upload($event)" />
-    <button class="load-dialogue" (click)="uploader.click()">📎 Load file</button>
-    <button class="add-node" (click)="addNode()">+ Add Node</button>
+    <input hidden type="file" #uploadertxt accept=".txt" (change)="upload($event)" />
+    <input hidden type="file" #uploaderjaw accept=".jaw" (change)="upload($event)" />
+    <p class="text-block-title">Import:</p>
+    <button class="load-dialogue" (click)="uploadertxt.click()">TXT</button> 
     <p class="text-block-title">Content:</p>
+    <button class="add-node" (click)="addNode()">Add Node</button>
     <textarea type="text" class="text-block" placeholder="Enter text here" [(ngModel)]="textBlock"></textarea>
   </div>
   <div class="content">
     <div class="title-container">
       <button class="toggle-button left" (click)="toggleLeftSidebar()">☰ Resource Pane</button>
       <h1 class="main-title">Jawbone</h1>
-      <button class="toggle-button right" (click)="toggleRightSidebar()">Diagram Pane ☰</button>
+      <button class="toggle-button right" (click)="toggleRightSidebar()">Actions Pane ☰</button>
       <img src="assets/images/jawbone_logo.png">
     </div>
     <app-board></app-board>
@@ -19,14 +21,19 @@
   <div class="sidebar right" [class.collapsed]="isRightCollapsed">
     <div class="sidebar-content">
       <h1>Jawbone</h1>
+      <p class="text-block-title">Board actions:</p>
       <button class="reset" (click)="reset()">Reset</button><br>
-      <button class="load-demo" (click)="loadDemo()">Load demo</button>
+      <button class="load-demo" (click)="loadDemo()">Load Demo</button>
+      <p class="text-block-title">Import:</p>
+      <button class="load-dialogue" (click)="uploaderjaw.click()">JAW</button>
       <p class="text-block-title">Export:</p>
       <button class="export-png" (click)="exportPng()">PNG</button><br>
-      <button class="export-jaw" (click)="exportJaw()">JAW (JSON)</button>
+      <button class="export-jaw" (click)="exportJaw()">JAW</button>
     </div>
     <div class="sidebar-bottom">
-      <a href="assets/instructions.pdf" download="instructions.pdf">Download Instructions and Tutorial</a>
+      <p class="text-block-title">Documentation:</p>
+      <a href="assets/instructions.pdf" download="instructions.pdf">Documentation</a>
+      <a href="https://github.com/Vavuz/Jawbone" target="_blank">Code repository</a>
       <p class="prototype-text">Jawbone is a prototype application.</p>
     </div>
   </div>
