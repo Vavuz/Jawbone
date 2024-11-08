@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormsModule, ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
 import { MatRadioModule } from '@angular/material/radio';
@@ -9,11 +9,18 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 export class MyErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null): boolean {
     return !!(control && control.invalid && (control.dirty || control.touched));
   }
+}
+
+export interface SpeechActGroup {
+  name: string;
+  speechActs: string[];
 }
 
 @Component({
@@ -33,119 +40,9 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
   templateUrl: './node-dialog.component.html',
   styleUrls: ['./node-dialog.component.scss']
 })
-export class NodeDialogComponent {
-
-  argumentGroups = [
-    {
-      name: 'Generic Types',
-      arguments: [
-        'Question',
-        'Statement'
-      ]
-    },
-    {
-      name: 'Statements',
-      arguments: [
-        'Ad hominem/Personal attack',
-        'Appeal',
-        'Assertion/Claim',
-        'Assumption',
-        'Categorical statement',
-        'Conclusion',
-        'Conditional statement',
-        'Counter example/Rebuttal',
-        'Directive',
-        'Existential statement',
-        'Generalisation',
-        'Premise',
-        'Singular statement',
-        'Similarity',
-        'Threat'
-      ]
-    },
-    {
-      name: 'Questions',
-      arguments: [
-        'Ad hominem question',
-        'Complex question',
-        'Conditional question',
-        'Deliberative question',
-        'Loaded question',
-        'Rhetorical question',
-        'Tricky question',
-        'What question',
-        'Where question',
-        'Which question',
-        'Who question',
-        'Why question',
-        'How question',
-        'Whether question',
-        'Yes-no question'
-      ]
-    },
-    {
-      name: 'Generalisations',
-      arguments: [
-        'Absolute/Universal generalisation',
-        'Inductive generalisation',
-        'Presumptive defeasible generalisation'
-      ]
-    },
-    {
-      name: 'Appeals',
-      arguments: [
-        'Appeal to authority',
-        'Appeal to common knowledge',
-        'Appeal to emotions',
-        'Appeal to expert',
-        'Appeal to fear',
-        'Appeal to pity',
-        'Appeal to popular opinion',
-        'Appeal to witness testimony'
-      ]
-    },
-    {
-      name: 'Appeal to Expert Questions',
-      arguments: [
-        'Backup Evidence Question',
-        'Consistency Question',
-        'Expertise Question',
-        'Field Question',
-        'Opinion Question',
-        'Trustworthiness Question'
-      ]
-    },
-    {
-      name: 'Premises',
-      arguments: [
-        'Bad outcome premise',
-        'Base premise',
-        'Character attack premise',
-        'Classification premise',
-        'Commitment premise',
-        'Conditional premise',
-        'Correlation premise',
-        'Credibility questioning premise',
-        'Fearful situation premise',
-        'General acceptance premise',
-        'General premise',
-        'Implicit-Unstated premise',
-        'Inconsistent commitment premise',
-        'Individual premise',
-        'Linkage of commitments premise',
-        'Major premise',
-        'Minor premise',
-        'Opposed commitment premise',
-        'Position to know premise',
-        'Presumption premise',
-        'Recursive premise',
-        'Similarity premise',
-        'Specific premise'
-      ]
-    }
-  ];
-
-  filteredGroups = [...this.argumentGroups];
+export class NodeDialogComponent implements OnInit {
+  speechActGroups: SpeechActGroup[] = [];
+  filteredGroups: SpeechActGroup[] = [];
   searchControl = new FormControl('');
   titleControl = new FormControl('', [Validators.required]);
   descriptionControl = new FormControl('', [Validators.required]);
@@ -153,6 +50,7 @@ export class NodeDialogComponent {
   selectedNodeType: 'dialogue' | 'argument' | 'participant' = 'dialogue';
 
   constructor(
+    private http: HttpClient,
     public dialogRef: MatDialogRef<NodeDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
@@ -160,17 +58,30 @@ export class NodeDialogComponent {
   }
 
   ngOnInit() {
+    this.loadSpeechActGroups().subscribe((data: SpeechActGroup[]) => {
+      this.speechActGroups = data;
+      this.filteredGroups = [...this.speechActGroups];
+    });
+
     this.searchControl.valueChanges.subscribe((searchTerm) => {
-      this.filteredGroups = this.filteredArgumentGroups(searchTerm || '');
+      this.filteredGroups = this.filteredSpeechActGroups(searchTerm || '');
     });
   }
 
-  filteredArgumentGroups(searchTerm: string = '') {
-    const term = searchTerm?.toLowerCase() || '';
-    return this.argumentGroups.map(group => ({
-      ...group,
-      arguments: group.arguments.filter(argument => argument.toLowerCase().includes(term))
-    })).filter(group => group.arguments.length > 0);
+  loadSpeechActGroups(): Observable<SpeechActGroup[]> {
+    return this.http.get<SpeechActGroup[]>('assets/speech-act-groups.json');
+  }
+
+  filteredSpeechActGroups(searchTerm: string = ''): SpeechActGroup[] {
+    const term = searchTerm.toLowerCase();
+    return this.speechActGroups
+      .map(group => ({
+        ...group,
+        speechActs: group.speechActs.filter((speechAct: string) =>
+          speechAct.toLowerCase().includes(term)
+        )
+      }))
+      .filter(group => group.speechActs.length > 0);
   }
 
   onCancel(): void {

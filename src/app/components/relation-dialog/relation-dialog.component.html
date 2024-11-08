@@ -6,7 +6,10 @@
     <mat-form-field appearance="fill" class="wide-select" *ngIf="!data.isConnectionToRelationNode">
       <mat-label>Relation Type</mat-label>
       <mat-select formControlName="relationType">
-        <mat-option *ngFor="let relation of relationTypes" [value]="relation">
+        <div class="search-container">
+          <input placeholder="Search" class="search-input" [formControl]="searchControl">  
+        </div>
+        <mat-option *ngFor="let relation of filteredRelationTypes" [value]="relation">
           {{ relation }}
         </mat-option>
       </mat-select>
