@@ -17,8 +17,8 @@
         </div>
               
         <mat-optgroup *ngFor="let group of filteredGroups" [label]="group.name">
-          <mat-option *ngFor="let argument of group.arguments" [value]="argument">
-            {{ argument }}
+          <mat-option *ngFor="let speechAct of group.speechActs" [value]="speechAct">
+            {{ speechAct }}
           </mat-option>
         </mat-optgroup>
       </mat-select>

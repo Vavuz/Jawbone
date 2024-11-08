@@ -35,17 +35,17 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
 })
 export class NodeDialogComponent {
 
-  argumentGroups = [
+  speechActGroups = [
     {
       name: 'Generic Types',
-      arguments: [
+      speechActs: [
         'Question',
         'Statement'
       ]
     },
     {
       name: 'Statements',
-      arguments: [
+      speechActs: [
         'Ad hominem/Personal attack',
         'Appeal',
         'Assertion/Claim',
@@ -65,7 +65,7 @@ export class NodeDialogComponent {
     },
     {
       name: 'Questions',
-      arguments: [
+      speechActs: [
         'Ad hominem question',
         'Complex question',
         'Conditional question',
@@ -85,7 +85,7 @@ export class NodeDialogComponent {
     },
     {
       name: 'Generalisations',
-      arguments: [
+      speechActs: [
         'Absolute/Universal generalisation',
         'Inductive generalisation',
         'Presumptive defeasible generalisation'
@@ -93,7 +93,7 @@ export class NodeDialogComponent {
     },
     {
       name: 'Appeals',
-      arguments: [
+      speechActs: [
         'Appeal to authority',
         'Appeal to common knowledge',
         'Appeal to emotions',
@@ -106,7 +106,7 @@ export class NodeDialogComponent {
     },
     {
       name: 'Appeal to Expert Questions',
-      arguments: [
+      speechActs: [
         'Backup Evidence Question',
         'Consistency Question',
         'Expertise Question',
@@ -117,7 +117,7 @@ export class NodeDialogComponent {
     },
     {
       name: 'Premises',
-      arguments: [
+      speechActs: [
         'Bad outcome premise',
         'Base premise',
         'Character attack premise',
@@ -145,7 +145,7 @@ export class NodeDialogComponent {
     }
   ];
 
-  filteredGroups = [...this.argumentGroups];
+  filteredGroups = [...this.speechActGroups];
   searchControl = new FormControl('');
   titleControl = new FormControl('', [Validators.required]);
   descriptionControl = new FormControl('', [Validators.required]);
@@ -161,16 +161,16 @@ export class NodeDialogComponent {
 
   ngOnInit() {
     this.searchControl.valueChanges.subscribe((searchTerm) => {
-      this.filteredGroups = this.filteredArgumentGroups(searchTerm || '');
+      this.filteredGroups = this.filteredSpeechActGroups(searchTerm || '');
     });
   }
 
-  filteredArgumentGroups(searchTerm: string = '') {
+  filteredSpeechActGroups(searchTerm: string = '') {
     const term = searchTerm?.toLowerCase() || '';
-    return this.argumentGroups.map(group => ({
+    return this.speechActGroups.map(group => ({
       ...group,
-      arguments: group.arguments.filter(argument => argument.toLowerCase().includes(term))
-    })).filter(group => group.arguments.length > 0);
+      speechActs: group.speechActs.filter(speechAct => speechAct.toLowerCase().includes(term))
+    })).filter(group => group.speechActs.length > 0);
   }
 
   onCancel(): void {

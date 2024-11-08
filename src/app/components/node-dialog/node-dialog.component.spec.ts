@@ -53,14 +53,14 @@ describe('NodeDialogComponent', () => {
     expect(titleElement.textContent).toContain('Add New Node');
   });
 
-  it('should filter argument groups based on search term', () => {
+  it('should filter speech act groups based on search term', () => {
     component.searchControl.setValue('appeal');
     fixture.detectChanges();
 
-    const filteredArguments = component.filteredGroups.flatMap(group => group.arguments);
-    expect(filteredArguments).toContain('Appeal to authority');
-    expect(filteredArguments).toContain('Appeal to emotions');
-    expect(filteredArguments).not.toContain('Statement');
+    const filteredSpeechActs = component.filteredGroups.flatMap(group => group.speechActs);
+    expect(filteredSpeechActs).toContain('Appeal to authority');
+    expect(filteredSpeechActs).toContain('Appeal to emotions');
+    expect(filteredSpeechActs).not.toContain('Statement');
   });
 
   it('should disable node type selection in edit mode', () => {
