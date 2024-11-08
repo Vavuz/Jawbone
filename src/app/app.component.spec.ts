@@ -109,7 +109,7 @@ describe('AppComponent', () => {
     const mockBoardComponent = component.boardComponent as MockBoardComponent;
     spyOn(mockBoardComponent, 'loadFromJaw');
     
-    const mockFile = new File(['content'], 'test.txt', { type: 'text/plain' });
+    const mockFile = new File(['content'], 'test.jaw', { type: 'text/plain' });
     const mockEvent = {
       target: {
         files: [mockFile]
@@ -119,7 +119,7 @@ describe('AppComponent', () => {
     const mockContent = ['node1', 'node2'];
     mockFileUploadService.readFile.and.returnValue(Promise.resolve(mockContent));
     
-    await component.upload(mockEvent);
+    await component.upload(mockEvent, 'jaw');
     
     tick();
     fixture.detectChanges();
@@ -143,7 +143,7 @@ describe('AppComponent', () => {
     const mockContent = 'some text';
     mockFileUploadService.readFile.and.returnValue(Promise.resolve(mockContent));
     
-    await component.upload(mockEvent);
+    await component.upload(mockEvent, 'txt');
     
     tick();
     fixture.detectChanges();
