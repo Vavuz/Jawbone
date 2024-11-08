@@ -1,6 +1,5 @@
 <div class="main-container">
   <div class="sidebar left" [class.collapsed]="isLeftCollapsed">
-    <h1>Jawbone</h1>
     <input hidden type="file" #uploadertxt accept=".txt" (change)="upload($event)" />
     <input hidden type="file" #uploaderjaw accept=".jaw" (change)="upload($event)" />
     <p class="text-block-title">Import:</p>
@@ -20,7 +19,6 @@
   </div>
   <div class="sidebar right" [class.collapsed]="isRightCollapsed">
     <div class="sidebar-content">
-      <h1>Jawbone</h1>
       <p class="text-block-title">Board actions:</p>
       <button class="reset" (click)="reset()">Reset</button><br>
       <button class="load-demo" (click)="loadDemo()">Load Demo</button>
