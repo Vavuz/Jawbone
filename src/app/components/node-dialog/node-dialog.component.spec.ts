@@ -1,38 +1,67 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ReactiveFormsModule } from '@angular/forms';
-import { NodeDialogComponent } from './node-dialog.component';
+import { NodeDialogComponent, SpeechActGroup } from './node-dialog.component';
 import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { MatRadioModule, MatRadioGroup } from '@angular/material/radio';
+import { MatRadioModule } from '@angular/material/radio';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
 describe('NodeDialogComponent', () => {
   let component: NodeDialogComponent;
   let fixture: ComponentFixture<NodeDialogComponent>;
   let dialogRefSpy: jasmine.SpyObj<MatDialogRef<NodeDialogComponent>>;
+  let httpMock: HttpTestingController;
 
-  let dialogData = {
+  const dialogData = {
     title: '',
     description: '',
     nodeType: 'dialogue',
     isEditMode: false
   };
 
+  const mockSpeechActGroups: SpeechActGroup[] = [
+    {
+      name: 'Generic Types',
+      speechActs: ['Question', 'Statement']
+    },
+    {
+      name: 'Statements',
+      speechActs: ['Ad hominem/Personal attack', 'Appeal', 'Assertion/Claim']
+    },
+  ];
+
   beforeEach(async () => {
     dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['close']);
-  
+
     await TestBed.configureTestingModule({
-      imports: [NodeDialogComponent, ReactiveFormsModule, NoopAnimationsModule, MatRadioModule],
+      imports: [
+        NodeDialogComponent,
+        ReactiveFormsModule,
+        NoopAnimationsModule,
+        MatRadioModule,
+        HttpClientTestingModule
+      ],
       providers: [
         { provide: MAT_DIALOG_DATA, useValue: dialogData },
         { provide: MatDialogRef, useValue: dialogRefSpy }
       ]
     }).compileComponents();
-  
+
     fixture = TestBed.createComponent(NodeDialogComponent);
     component = fixture.componentInstance;
+    httpMock = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
-  });  
+
+    const req = httpMock.expectOne('assets/speech-act-groups.json');
+    expect(req.request.method).toBe('GET');
+    req.flush(mockSpeechActGroups);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
 
   it('should create the component', () => {
     expect(component).toBeTruthy();
@@ -58,17 +87,17 @@ describe('NodeDialogComponent', () => {
     fixture.detectChanges();
 
     const filteredSpeechActs = component.filteredGroups.flatMap(group => group.speechActs);
-    expect(filteredSpeechActs).toContain('Appeal to authority');
-    expect(filteredSpeechActs).toContain('Appeal to emotions');
+    expect(filteredSpeechActs).toContain('Appeal');
+    expect(filteredSpeechActs).not.toContain('Question');
     expect(filteredSpeechActs).not.toContain('Statement');
   });
 
   it('should disable node type selection in edit mode', () => {
     component.data.isEditMode = true;
     fixture.detectChanges();
-  
+
     const radioButtons = fixture.debugElement.queryAll(By.css('mat-radio-button'));
-  
+
     radioButtons.forEach(rb => {
       const input = rb.query(By.css('input'))?.nativeElement as HTMLInputElement;
       expect(input.disabled).toBeTrue();

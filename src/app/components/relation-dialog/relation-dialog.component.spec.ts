@@ -8,11 +8,13 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
 describe('RelationDialogComponent', () => {
   let component: RelationDialogComponent;
   let fixture: ComponentFixture<RelationDialogComponent>;
   let dialogRefSpy: jasmine.SpyObj<MatDialogRef<RelationDialogComponent>>;
+  let httpMock: HttpTestingController;
 
   const dialogData = {
     relationType: '',
@@ -20,6 +22,14 @@ describe('RelationDialogComponent', () => {
     isEditMode: false,
     isConnectionToRelationNode: false
   };
+
+  const mockRelationTypes: string[] = [
+    'Support', 'Contradict', 'Attack', 'Lead to', 'Assume', 'Rely on', 'Prove',
+    'Disprove', 'Highlight', 'Challenge', 'Explain', 'Clarify', 'Justify',
+    'Question', 'Strengthen', 'Weaken', 'Infer', 'Conclude', 'Summarise',
+    'Acknowledge', 'Counter', 'Extend', 'Refute', 'Rephrase',
+    'Therefore', 'Because', 'Despite', 'Analogy', 'Contrast'
+  ];
 
   beforeEach(async () => {
     dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['close']);
@@ -32,7 +42,8 @@ describe('RelationDialogComponent', () => {
         MatCheckboxModule,
         MatSelectModule,
         MatFormFieldModule,
-        MatButtonModule
+        MatButtonModule,
+        HttpClientTestingModule
       ],
       providers: [
         { provide: MAT_DIALOG_DATA, useValue: dialogData },
@@ -42,7 +53,17 @@ describe('RelationDialogComponent', () => {
 
     fixture = TestBed.createComponent(RelationDialogComponent);
     component = fixture.componentInstance;
+    httpMock = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
+
+    const req = httpMock.expectOne('assets/relation-types.json');
+    expect(req.request.method).toBe('GET');
+    req.flush(mockRelationTypes);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    httpMock.verify();
   });
 
   it('should create the component', () => {
@@ -51,13 +72,11 @@ describe('RelationDialogComponent', () => {
 
   it('should display the correct dialog title based on edit mode', () => {
     component.data.isEditMode = true;
-    component.relationForm.updateValueAndValidity();
     fixture.detectChanges();
     const titleElement = fixture.debugElement.query(By.css('h1')).nativeElement;
     expect(titleElement.textContent).toContain('Select New Relation Type');
 
     component.data.isEditMode = false;
-    component.relationForm.updateValueAndValidity();
     fixture.detectChanges();
     expect(titleElement.textContent).toContain('Select Relation Type');
   });
