@@ -12,15 +12,18 @@
     <mat-form-field appearance="fill" class="wide-select">
       <mat-label>Speech Act Type</mat-label>
       <mat-select [formControl]="titleControl" [(ngModel)]="data.title" [errorStateMatcher]="matcher">
-        <mat-optgroup *ngFor="let group of argumentGroups" [label]="group.name">
-          <mat-option *ngFor="let argument of group.arguments" [value]="argument">
-            {{ argument }}
+        <div class="search-container">
+          <input placeholder="Search" class="search-input" [formControl]="searchControl">  
+        </div>
+              
+        <mat-optgroup *ngFor="let group of filteredGroups" [label]="group.name">
+          <mat-option *ngFor="let speechAct of group.speechActs" [value]="speechAct">
+            {{ speechAct }}
           </mat-option>
         </mat-optgroup>
       </mat-select>
       <mat-error *ngIf="titleControl.hasError('required')">You must select a speech act type</mat-error>
-    </mat-form-field>  
-
+    </mat-form-field>
     <mat-form-field appearance="fill">
       <mat-label>Description</mat-label>
       <input matInput [formControl]="descriptionControl" [(ngModel)]="data.description">

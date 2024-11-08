@@ -1,14 +1,19 @@
-import { Component, Inject, PLATFORM_ID, ViewChild } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit, PLATFORM_ID, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { BoardComponent } from './components/board/board.component';
 import { isPlatformBrowser } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 import { FileUploadService } from './services/file-upload/file-upload.service';
 import { FormsModule } from '@angular/forms';
+import { ImageExportService } from './services/image-export/image-export.service';
+import { HttpClient } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
+import { catchError, of, tap } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-root',
@@ -18,12 +23,14 @@ import { FormsModule } from '@angular/forms';
     MatButtonModule,
     MatDividerModule,
     MatIconModule,
-    FormsModule
+    MatDialogModule,
+    FormsModule,
+    HttpClientModule,
   ],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
   title = 'Jawbone';
   isLeftCollapsed = false;
   isRightCollapsed = false;
@@ -31,11 +38,14 @@ export class AppComponent {
   textBlock: string = '';
 
   @ViewChild(BoardComponent) boardComponent!: BoardComponent;
-  
+
   constructor(
+    private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object,
     public dialog: MatDialog,
-    private fileUploadService: FileUploadService
+    private snackBar: MatSnackBar,
+    private fileUploadService: FileUploadService,
+    private imageExportService: ImageExportService,
   ) {
     this.initializeSelectionListener();
   }
@@ -46,6 +56,33 @@ export class AppComponent {
         this.newNodeDescription = window.getSelection()!.toString();
       });
     }
+  }
+
+  ngOnInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      window.addEventListener('beforeunload', this.beforeUnloadHandler);
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      window.removeEventListener('beforeunload', this.beforeUnloadHandler);
+    }
+  }
+
+  private beforeUnloadHandler = (event: BeforeUnloadEvent) => {
+    if (this.hasUnsavedChanges()) {
+      event.preventDefault();
+      event.returnValue = '';
+    }
+  };
+
+  private hasUnsavedChanges(): boolean {
+    return this.textBlock.trim().length > 0 || this.boardComponent.nodeCounter > 0;
+  }
+
+  ngAfterViewInit(): void {
+    this.imageExportService.setCytoscapeInstance(this.boardComponent.getCytoscapeInstance());
   }
 
   addNode(): void {
@@ -71,6 +108,7 @@ export class AppComponent {
 
     dialogRef.afterClosed().subscribe((confirmed: boolean) => {
       if (confirmed) {
+        this.textBlock = "";
         this.clearBoard();
       }
     });
@@ -80,14 +118,51 @@ export class AppComponent {
     this.boardComponent.clear();
   }
 
-  upload(event: any) {
+  upload(event: any, fileType: 'txt' | 'jaw') {
     const file: File = event.target.files[0];
-    this.fileUploadService.readFile(file).then((fileContent: string) => {
-      this.textBlock = fileContent;
+    if (!file) {
+      return;
+    }
+
+    const fileName = file.name;
+    const fileExtension = fileName.split('.').pop()?.toLowerCase();
+
+    if (fileType === 'txt' && fileExtension !== 'txt') {
+      this.snackBar.open(
+        'File not supported.', 'Close',
+        {
+          duration: 3000,
+        }
+      );
+      return;
+    }
+
+    if (fileType === 'jaw' && fileExtension !== 'jaw') {
+      this.snackBar.open(
+        'File not supported.', 'Close',
+        {
+          duration: 3000,
+        }
+      );
+      return;
+    }
+
+    this.fileUploadService.readFile(file).then((fileContent: any) => {
+      if (Array.isArray(fileContent)) {
+        this.boardComponent.loadFromJaw(fileContent);
+      } else {
+        this.textBlock = fileContent;
+      }
     }).catch(error => {
       console.error(error);
+      this.snackBar.open(
+        'File upload error.', 'Close',
+        {
+          duration: 3000,
+        }
+      );
     });
-  }  
+  }
 
   loadDemo(): void {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
@@ -106,29 +181,41 @@ export class AppComponent {
   }
 
   loadDemoContent(): void {
-    const demoNodes = [
-      { data: { id: '1', title: 'Assertion', description: 'This is node 1', nodeType: 'node' }, position: { x: 100, y: 100 } },
-      { data: { id: '2', title: 'Contradiction', description: 'This is node 2', nodeType: 'node' }, position: { x: 250, y: 300 } },
-      { data: { id: '3', title: 'Assertion', description: 'This is node 3', nodeType: 'node' }, position: { x: 400, y: 100 } },
-      { data: { id: 'r1', title: 'Supports', nodeType: 'relation' }, position: { x: 150, y: 200 } },
-      { data: { id: 'r2', title: 'Contradicts', nodeType: 'relation' }, position: { x: 350, y: 200 } },
-    ];
-  
-    const demoEdges = [
-      { data: { id: 'e1', source: '1', target: 'r1', label: 'supports' } },
-      { data: { id: 'e2', source: 'r1', target: '2', label: 'supports' } },
-      { data: { id: 'e3', source: '2', target: 'r2', label: 'contradicts' } },
-      { data: { id: 'e4', source: 'r2', target: '3', label: 'contradicts' } },
-    ];
-  
-    this.boardComponent.loadDemo(demoNodes, demoEdges);
+    this.http.get('assets/demo.jaw', { responseType: 'text' }).pipe(
+      tap((data: string) => {
+        try {
+          const parsedData = JSON.parse(data);
+          this.textBlock = "Alice: I believe taking out a mortgage at a young age is a sign of independence. It allows young people to be self-reliant rather than relying on their parents or public housing.\n" +
+                 "Bob: However, getting into massive debt can be dangerous. Problems arise when debt spirals out of control.\n" +
+                 "Alice: If managed responsibly, a mortgage is a smart investment in one's future.\n" +
+                 "Bob: But many young people take on debt they can't handle, leading to financial crises.\n" +
+                 "Alice: That's why financial education is crucial. Informed decisions come from proper knowledge.\n" +
+                 "Bob: Even with education, unforeseen events can make debt unmanageable. It's not morally neutral if it leads to hardship.";
+          this.boardComponent.loadFromJaw(parsedData, false);
+        } catch (error) {
+          console.error('Error parsing demo content:', error);
+        }
+      }),
+      catchError((error) => {
+        console.error('Error loading demo content:', error);
+        return of(null);
+      })
+    ).subscribe();
   }
 
   exportPng(): void {
-    console.log('Export PNG clicked');
+    this.imageExportService.exportDiagramAsImage('cy');
   }
 
-  exportJson(): void {
-    console.log('Export JSON clicked');
+  exportJaw(): void {
+      const boardContent = this.boardComponent.returnBoardContent();
+      const file = new Blob([boardContent], { type: 'application/json' });
+    
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(file);
+      link.download = 'board-content.jaw';
+
+      link.click();
+      link.remove();
   }
 }

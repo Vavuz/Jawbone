@@ -1,0 +1,106 @@
+[
+    {
+      "name": "Generic Types",
+      "speechActs": ["Question", "Statement"]
+    },
+    {
+      "name": "Statements",
+      "speechActs": [
+        "Ad hominem/Personal attack",
+        "Appeal",
+        "Assertion/Claim",
+        "Assumption",
+        "Categorical statement",
+        "Conclusion",
+        "Conditional statement",
+        "Counter example/Rebuttal",
+        "Directive",
+        "Existential statement",
+        "Generalisation",
+        "Premise",
+        "Singular statement",
+        "Similarity",
+        "Threat"
+      ]
+    },
+    {
+      "name": "Questions",
+      "speechActs": [
+        "Ad hominem question",
+        "Complex question",
+        "Conditional question",
+        "Deliberative question",
+        "Loaded question",
+        "Rhetorical question",
+        "Tricky question",
+        "What question",
+        "Where question",
+        "Which question",
+        "Who question",
+        "Why question",
+        "How question",
+        "Whether question",
+        "Yes-no question"
+      ]
+    },
+    {
+      "name": "Generalisations",
+      "speechActs": [
+        "Absolute/Universal generalisation",
+        "Inductive generalisation",
+        "Presumptive defeasible generalisation"
+      ]
+    },
+    {
+      "name": "Appeals",
+      "speechActs": [
+        "Appeal to authority",
+        "Appeal to common knowledge",
+        "Appeal to emotions",
+        "Appeal to expert",
+        "Appeal to fear",
+        "Appeal to pity",
+        "Appeal to popular opinion",
+        "Appeal to witness testimony"
+      ]
+    },
+    {
+      "name": "Appeal to Expert Questions",
+      "speechActs": [
+        "Backup Evidence Question",
+        "Consistency Question",
+        "Expertise Question",
+        "Field Question",
+        "Opinion Question",
+        "Trustworthiness Question"
+      ]
+    },
+    {
+      "name": "Premises",
+      "speechActs": [
+        "Bad outcome premise",
+        "Base premise",
+        "Character attack premise",
+        "Classification premise",
+        "Commitment premise",
+        "Conditional premise",
+        "Correlation premise",
+        "Credibility questioning premise",
+        "Fearful situation premise",
+        "General acceptance premise",
+        "General premise",
+        "Implicit-Unstated premise",
+        "Inconsistent commitment premise",
+        "Individual premise",
+        "Linkage of commitments premise",
+        "Major premise",
+        "Minor premise",
+        "Opposed commitment premise",
+        "Position to know premise",
+        "Presumption premise",
+        "Recursive premise",
+        "Similarity premise",
+        "Specific premise"
+      ]
+    }
+]

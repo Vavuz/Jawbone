@@ -8,11 +8,12 @@
 
 .context-menu button {
     display: block;
-    width: 100%;
+    width: 95px;
     padding: 8px;
     border: none;
     background: none;
     text-align: left;
+    border-bottom: 1px solid #ccc;;
 }
 
 .context-menu button:hover {
