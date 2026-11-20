@@ -43,7 +43,7 @@ describe('NodeDialogComponent', () => {
         HttpClientTestingModule
       ],
       providers: [
-        { provide: MAT_DIALOG_DATA, useValue: dialogData },
+        { provide: MAT_DIALOG_DATA, useValue: { ...dialogData } },
         { provide: MatDialogRef, useValue: dialogRefSpy }
       ]
     }).compileComponents();
@@ -69,6 +69,21 @@ describe('NodeDialogComponent', () => {
 
   it('should initialize with the correct node type', () => {
     expect(component.selectedNodeType).toBe(dialogData.nodeType);
+    expect(component.data.backgroundColor).toBe('#ffffff');
+  });
+
+  it('should use the default color for the selected node type', () => {
+    component.selectedNodeType = 'participant';
+    component.onNodeTypeChange();
+
+    expect(component.data.backgroundColor).toBe('#beeeb8');
+  });
+
+  it('should select a preset node color', () => {
+    component.selectBackgroundColor('#fff2cc');
+
+    expect(component.data.backgroundColor).toBe('#fff2cc');
+    expect(component.isPresetColor('#fff2cc')).toBeTrue();
   });
 
   it('should display the correct dialog title based on edit mode', () => {
@@ -127,6 +142,7 @@ describe('NodeDialogComponent', () => {
     component.selectedNodeType = 'dialogue';
     component.titleControl.setValue('Question');
     component.descriptionControl.setValue('Why do we argue?');
+    component.data.backgroundColor = '#123abc';
     fixture.detectChanges();
 
     component.onSave();
@@ -134,6 +150,7 @@ describe('NodeDialogComponent', () => {
     expect(dialogRefSpy.close).toHaveBeenCalledWith({
       ...dialogData,
       nodeType: 'dialogue',
+      backgroundColor: '#123abc',
       title: 'Question',
       description: 'Why do we argue?'
     });

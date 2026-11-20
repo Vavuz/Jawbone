@@ -11,6 +11,7 @@ import { ErrorStateMatcher } from '@angular/material/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { DEFAULT_NODE_BACKGROUND_COLORS, EditableNodeType, getNodeBackgroundColor, NODE_COLOR_PRESETS } from './node-colors';
 
 export class MyErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null): boolean {
@@ -47,7 +48,8 @@ export class NodeDialogComponent implements OnInit {
   titleControl = new FormControl('', [Validators.required]);
   descriptionControl = new FormControl('', [Validators.required]);
   matcher = new MyErrorStateMatcher();
-  selectedNodeType: 'dialogue' | 'argument' | 'participant' = 'dialogue';
+  selectedNodeType: EditableNodeType = 'dialogue';
+  readonly colorPresets = NODE_COLOR_PRESETS;
 
   constructor(
     private http: HttpClient,
@@ -55,6 +57,7 @@ export class NodeDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.selectedNodeType = data.nodeType || 'dialogue';
+    this.data.backgroundColor = getNodeBackgroundColor(this.selectedNodeType, data.backgroundColor);
   }
 
   ngOnInit() {
@@ -84,6 +87,19 @@ export class NodeDialogComponent implements OnInit {
       .filter(group => group.speechActs.length > 0);
   }
 
+  onNodeTypeChange(): void {
+    this.data.backgroundColor = DEFAULT_NODE_BACKGROUND_COLORS[this.selectedNodeType];
+  }
+
+  selectBackgroundColor(color: string): void {
+    this.data.backgroundColor = color;
+  }
+
+  isPresetColor(color: unknown): boolean {
+    return typeof color === 'string' &&
+      this.colorPresets.some(preset => preset.color === color.toLowerCase());
+  }
+
   onCancel(): void {
     this.dialogRef.close();
   }
@@ -97,7 +113,8 @@ export class NodeDialogComponent implements OnInit {
     if (validData) {
       const result = {
         ...this.data,
-        nodeType: this.selectedNodeType
+        nodeType: this.selectedNodeType,
+        backgroundColor: getNodeBackgroundColor(this.selectedNodeType, this.data.backgroundColor),
       };
       this.dialogRef.close(result);
     }
