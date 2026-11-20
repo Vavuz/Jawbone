@@ -2,38 +2,11 @@
 
 <div mat-dialog-content style="padding-bottom: 0;">
   
-  <mat-radio-group [(ngModel)]="selectedNodeType" (ngModelChange)="onNodeTypeChange()" class="node-type-selector" [disabled]="data.isEditMode">
+  <mat-radio-group [(ngModel)]="selectedNodeType" class="node-type-selector" [disabled]="data.isEditMode">
     <mat-radio-button *ngIf="!data.isEditMode || selectedNodeType === 'dialogue'" value="dialogue">Dialogue Node</mat-radio-button>
     <mat-radio-button *ngIf="!data.isEditMode || selectedNodeType === 'argument'" value="argument">Argument Node</mat-radio-button>
     <mat-radio-button *ngIf="!data.isEditMode || selectedNodeType === 'participant'" value="participant">Participant Node</mat-radio-button>
   </mat-radio-group><br><br>
-
-  <div class="node-color-picker">
-    <span id="node-colour-label">Node colour</span>
-    <div class="node-color-presets" role="group" aria-labelledby="node-colour-label">
-      <button
-        *ngFor="let preset of colorPresets"
-        type="button"
-        class="node-color-preset"
-        [class.selected]="data.backgroundColor === preset.color"
-        [style.background-color]="preset.color"
-        [attr.aria-label]="preset.name"
-        [attr.aria-pressed]="data.backgroundColor === preset.color"
-        (click)="selectBackgroundColor(preset.color)">
-      </button>
-      <ng-container *ngIf="!isPresetColor(data.backgroundColor)">
-        <span>Current</span>
-        <button
-          type="button"
-          class="node-color-preset selected"
-          [style.background-color]="data.backgroundColor"
-          aria-label="Keep current node colour"
-          aria-pressed="true"
-          (click)="selectBackgroundColor(data.backgroundColor)">
-        </button>
-      </ng-container>
-    </div>
-  </div>
 
   <ng-container *ngIf="selectedNodeType === 'dialogue'">
     <mat-form-field appearance="fill" class="wide-select">

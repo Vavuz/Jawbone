@@ -4,7 +4,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Renderer2, Component, PLATFORM_ID } from '@angular/core';
 import { of } from 'rxjs';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 @Component({
   selector: 'app-context-menu',
@@ -52,8 +51,7 @@ describe('BoardComponent', () => {
     mockCytoscapeInstance.on.and.returnValue(mockCytoscapeInstance);
     mockCytoscapeInstance.add.and.returnValue(mockCytoscapeInstance);
     mockCytoscapeInstance.elements.and.returnValue({
-      jsons: () => [],
-      remove: () => {}
+      jsons: () => []
     });
     mockCytoscapeInstance.layout.and.returnValue({
       run: () => {}
@@ -67,7 +65,7 @@ describe('BoardComponent', () => {
     document.body.appendChild(cyDiv);
   
     await TestBed.configureTestingModule({
-      imports: [BoardComponent, NoopAnimationsModule],
+      imports: [BoardComponent],
       declarations: [
         MockContextMenuComponent,
         MockRelationDialogComponent,
@@ -97,49 +95,6 @@ describe('BoardComponent', () => {
   xit('should add nodes and edges in loadFromJaw', fakeAsync(() => {
     //
   }));
-
-  it('should default imported JAW node colors and preserve custom colors', () => {
-    const nodes = [
-      {
-        group: 'nodes',
-        data: { id: '1', nodeType: 'participant' },
-        position: { x: 0, y: 0 }
-      },
-      {
-        group: 'nodes',
-        data: { id: '2', nodeType: 'argument', backgroundColor: '#123abc' },
-        position: { x: 1, y: 1 }
-      }
-    ];
-    Object.defineProperty(component, 'cy', { value: mockCytoscapeInstance, writable: true });
-
-    component.loadFromJaw(nodes);
-
-    expect(mockCytoscapeInstance.add).toHaveBeenCalledWith([
-      jasmine.objectContaining({
-        data: jasmine.objectContaining({ backgroundColor: '#beeeb8' })
-      }),
-      jasmine.objectContaining({
-        data: jasmine.objectContaining({ backgroundColor: '#123abc' })
-      })
-    ]);
-  });
-
-  it('should include node colors in exported JAW content', () => {
-    const exportedNodes = [{
-      group: 'nodes',
-      data: { id: '1', nodeType: 'argument', backgroundColor: '#123abc' }
-    }];
-    mockCytoscapeInstance.elements.and.returnValue({
-      jsons: () => exportedNodes,
-      remove: () => {}
-    });
-    Object.defineProperty(component, 'cy', { value: mockCytoscapeInstance, writable: true });
-
-    const jawContent = JSON.parse(component.returnBoardContent());
-
-    expect(jawContent[0].data.backgroundColor).toBe('#123abc');
-  });
 
   xit('should clear the board', () => {
     //
