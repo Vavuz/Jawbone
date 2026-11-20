@@ -6,17 +6,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialogModule } from '@angular/material/dialog';
-import { MatSelectModule } from '@angular/material/select';
-import { ErrorStateMatcher } from '@angular/material/core';
 import { CommonModule } from '@angular/common';
+import { ConnectedPosition, OverlayModule } from '@angular/cdk/overlay';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
-export class MyErrorStateMatcher implements ErrorStateMatcher {
-  isErrorState(control: FormControl | null): boolean {
-    return !!(control && control.invalid && (control.dirty || control.touched));
-  }
-}
+import { DEFAULT_NODE_BACKGROUND_COLORS, EditableNodeType, getNodeBackgroundColor, NODE_COLOR_PRESETS } from './node-colors';
 
 export interface SpeechActGroup {
   name: string;
@@ -33,7 +27,7 @@ export interface SpeechActGroup {
     MatButtonModule,
     MatRadioModule,
     MatDialogModule,
-    MatSelectModule,
+    OverlayModule,
     CommonModule,
     ReactiveFormsModule,
   ],
@@ -46,8 +40,13 @@ export class NodeDialogComponent implements OnInit {
   searchControl = new FormControl('');
   titleControl = new FormControl('', [Validators.required]);
   descriptionControl = new FormControl('', [Validators.required]);
-  matcher = new MyErrorStateMatcher();
-  selectedNodeType: 'dialogue' | 'argument' | 'participant' = 'dialogue';
+  selectedNodeType: EditableNodeType = 'dialogue';
+  readonly colorPresets = NODE_COLOR_PRESETS;
+  speechActPickerOpen = false;
+  readonly pickerPositions: ConnectedPosition[] = [
+    { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 4 },
+    { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom', offsetY: -4 },
+  ];
 
   constructor(
     private http: HttpClient,
@@ -55,6 +54,8 @@ export class NodeDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.selectedNodeType = data.nodeType || 'dialogue';
+    this.data.backgroundColor = getNodeBackgroundColor(this.selectedNodeType, data.backgroundColor);
+    this.titleControl.setValue(data.title || '');
   }
 
   ngOnInit() {
@@ -84,6 +85,34 @@ export class NodeDialogComponent implements OnInit {
       .filter(group => group.speechActs.length > 0);
   }
 
+  selectSpeechAct(speechAct: string): void {
+    this.titleControl.setValue(speechAct);
+    this.data.title = speechAct;
+    this.closeSpeechActPicker();
+  }
+
+  openSpeechActPicker(): void {
+    this.searchControl.setValue('');
+    this.speechActPickerOpen = true;
+  }
+
+  closeSpeechActPicker(): void {
+    this.speechActPickerOpen = false;
+  }
+
+  onNodeTypeChange(): void {
+    this.data.backgroundColor = DEFAULT_NODE_BACKGROUND_COLORS[this.selectedNodeType];
+  }
+
+  selectBackgroundColor(color: string): void {
+    this.data.backgroundColor = color;
+  }
+
+  isPresetColor(color: unknown): boolean {
+    return typeof color === 'string' &&
+      this.colorPresets.some(preset => preset.color === color.toLowerCase());
+  }
+
   onCancel(): void {
     this.dialogRef.close();
   }
@@ -97,7 +126,9 @@ export class NodeDialogComponent implements OnInit {
     if (validData) {
       const result = {
         ...this.data,
-        nodeType: this.selectedNodeType
+        title: this.selectedNodeType === 'dialogue' ? this.titleControl.value : this.data.title,
+        nodeType: this.selectedNodeType,
+        backgroundColor: getNodeBackgroundColor(this.selectedNodeType, this.data.backgroundColor),
       };
       this.dialogRef.close(result);
     }

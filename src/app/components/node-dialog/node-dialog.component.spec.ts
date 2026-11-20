@@ -3,6 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NodeDialogComponent, SpeechActGroup } from './node-dialog.component';
 import { By } from '@angular/platform-browser';
+import { OverlayContainer } from '@angular/cdk/overlay';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatRadioModule } from '@angular/material/radio';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
@@ -43,7 +44,7 @@ describe('NodeDialogComponent', () => {
         HttpClientTestingModule
       ],
       providers: [
-        { provide: MAT_DIALOG_DATA, useValue: dialogData },
+        { provide: MAT_DIALOG_DATA, useValue: { ...dialogData } },
         { provide: MatDialogRef, useValue: dialogRefSpy }
       ]
     }).compileComponents();
@@ -69,6 +70,21 @@ describe('NodeDialogComponent', () => {
 
   it('should initialize with the correct node type', () => {
     expect(component.selectedNodeType).toBe(dialogData.nodeType);
+    expect(component.data.backgroundColor).toBe('#ffffff');
+  });
+
+  it('should use the default color for the selected node type', () => {
+    component.selectedNodeType = 'participant';
+    component.onNodeTypeChange();
+
+    expect(component.data.backgroundColor).toBe('#beeeb8');
+  });
+
+  it('should select a preset node color', () => {
+    component.selectBackgroundColor('#fff2cc');
+
+    expect(component.data.backgroundColor).toBe('#fff2cc');
+    expect(component.isPresetColor('#fff2cc')).toBeTrue();
   });
 
   it('should display the correct dialog title based on edit mode', () => {
@@ -90,6 +106,24 @@ describe('NodeDialogComponent', () => {
     expect(filteredSpeechActs).toContain('Appeal');
     expect(filteredSpeechActs).not.toContain('Question');
     expect(filteredSpeechActs).not.toContain('Statement');
+  });
+
+  it('should open the speech act table from its field', () => {
+    const field = fixture.debugElement.query(By.css('.wide-select input'));
+    (field.nativeElement as HTMLInputElement).click();
+    fixture.detectChanges();
+
+    expect(component.speechActPickerOpen).toBeTrue();
+    expect(TestBed.inject(OverlayContainer).getContainerElement().querySelector('.speech-act-table')).not.toBeNull();
+  });
+
+  it('should select a speech act from the picker', () => {
+    component.openSpeechActPicker();
+    component.selectSpeechAct('Statement');
+
+    expect(component.titleControl.value).toBe('Statement');
+    expect(component.data.title).toBe('Statement');
+    expect(component.speechActPickerOpen).toBeFalse();
   });
 
   it('should disable node type selection in edit mode', () => {
@@ -127,6 +161,7 @@ describe('NodeDialogComponent', () => {
     component.selectedNodeType = 'dialogue';
     component.titleControl.setValue('Question');
     component.descriptionControl.setValue('Why do we argue?');
+    component.data.backgroundColor = '#123abc';
     fixture.detectChanges();
 
     component.onSave();
@@ -134,6 +169,7 @@ describe('NodeDialogComponent', () => {
     expect(dialogRefSpy.close).toHaveBeenCalledWith({
       ...dialogData,
       nodeType: 'dialogue',
+      backgroundColor: '#123abc',
       title: 'Question',
       description: 'Why do we argue?'
     });

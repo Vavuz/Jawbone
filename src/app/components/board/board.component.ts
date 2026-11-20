@@ -12,6 +12,7 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { ContextMenuComponent } from '../context-menu/context-menu.component';
 import { RelationDialogComponent } from '../relation-dialog/relation-dialog.component';
 import { NodeDialogComponent } from '../node-dialog/node-dialog.component';
+import { getNodeBackgroundColor } from '../node-dialog/node-colors';
 import nodeHtmlLabel from 'cytoscape-node-html-label';
 
 nodeHtmlLabel(cytoscape);
@@ -36,6 +37,7 @@ nodeHtmlLabel(cytoscape);
 })
 export class BoardComponent {
   private cy?: Core;
+  private nodeLabelObserver?: MutationObserver;
   showModal = false;
   nodeCounter = 0;
   edgeCounter = 0;
@@ -61,6 +63,7 @@ export class BoardComponent {
   }
 
   ngOnDestroy(): void {
+    this.nodeLabelObserver?.disconnect();
     this.cy?.destroy();
   }
 
@@ -74,10 +77,21 @@ export class BoardComponent {
       userPanningEnabled: true,
       autoungrabify: false,
     });
+    this.observeNodeLabels();
   }
   
   private getCytoscapeStyles(): Stylesheet[] {
     return [
+      {
+        selector: 'node[nodeType != "relation"]',
+        style: {
+          shape: 'rectangle',
+          width: '1px',
+          height: '1px',
+          'background-opacity': 0,
+          'border-opacity': 0,
+        },
+      },
       {
         selector: 'node[nodeType="relation"]',
         style: {
@@ -110,6 +124,37 @@ export class BoardComponent {
         }
       },
     ];
+  }
+
+  private observeNodeLabels(): void {
+    const container = this.cy?.container();
+    if (!container) return;
+
+    this.nodeLabelObserver = new MutationObserver(() => this.updateNodeHitAreas(container));
+    this.nodeLabelObserver.observe(container, { childList: true, subtree: true });
+  }
+
+  private updateNodeHitAreas(container: HTMLElement): void {
+    if (!this.cy) return;
+
+    container.querySelectorAll<HTMLElement>('[data-node-id]').forEach((label) => {
+      const nodeId = label.dataset['nodeId'];
+      if (!nodeId) return;
+
+      const node = this.cy!.getElementById(nodeId);
+      if (!node.isNode()) return;
+
+      const labelSurface = label.closest<HTMLElement>('.cy-title') ?? label;
+      const width = labelSurface.offsetWidth;
+      const height = labelSurface.offsetHeight;
+      if (width === 0 || height === 0) return;
+      if (node.width() === width && node.height() === height) return;
+
+      node.style({
+        width: `${width}px`,
+        height: `${height}px`,
+      });
+    });
   }
 
   private setupEventListeners(): void {
@@ -199,6 +244,12 @@ export class BoardComponent {
     const nodes = jsonData.filter(element => element.group === 'nodes');
     const edges = jsonData.filter(element => element.group === 'edges');
   
+    nodes.forEach(node => {
+      if (node.data.nodeType !== 'relation') {
+        node.data.backgroundColor = getNodeBackgroundColor(node.data.nodeType, node.data.backgroundColor);
+      }
+    });
+
     this.cy.add(nodes);
     this.cy.add(edges);
   
@@ -243,7 +294,7 @@ export class BoardComponent {
       dialogRef = this.dialog.open(RelationDialogComponent, {
         width: '500px',
         maxWidth: '90vw',
-        data: { title: node.data('title'), isEditMode: true },
+        data: { relationType: node.data('title'), isEditMode: true },
       });
     } else {
       dialogRef = this.dialog.open(NodeDialogComponent, {
@@ -254,6 +305,7 @@ export class BoardComponent {
           description: node.data('description'),
           isEditMode: true,
           nodeType: node.data('nodeType'),
+          backgroundColor: node.data('backgroundColor'),
         },
       });
     }
@@ -265,6 +317,7 @@ export class BoardComponent {
         } else {
           node.data('title', result.title);
           node.data('description', result.description);
+          node.data('backgroundColor', getNodeBackgroundColor(result.nodeType, result.backgroundColor));
         }
       }
     });
@@ -318,6 +371,7 @@ export class BoardComponent {
         title: result.title,
         description: result.description,
         nodeType: result.nodeType,
+        backgroundColor: getNodeBackgroundColor(result.nodeType, result.backgroundColor),
       },
       position: { x: 100, y: 100 },
     };
@@ -346,12 +400,13 @@ export class BoardComponent {
   private generateNodeTemplate(data: any): string {
     const isParticipant = data.nodeType === 'participant';
     const borderColor = isParticipant ? 'green' : '#000';
-    const backgroundColor = isParticipant ? '#beeeb8' : '#d8eefd';
+    const backgroundColor = getNodeBackgroundColor(data.nodeType, data.backgroundColor);
     const textStyle = isParticipant ? 'font-weight: bold;' : '';
+    const nodeId = this.escapeHtmlAttribute(String(data.id));
 
     if (['argument', 'participant'].includes(data.nodeType)) {
       return `
-        <div style="
+        <div data-node-id="${nodeId}" style="
           border: 3px solid ${borderColor};
           border-radius: 5px;
           padding: 10px;
@@ -365,11 +420,11 @@ export class BoardComponent {
     }
 
     return `
-      <div style="
+      <div data-node-id="${nodeId}" style="
         border: 3px solid #000;
         border-radius: 5px;
         padding: 10px;
-        background-color: #fff;
+        background-color: ${backgroundColor};
         max-width: 250px;
         overflow-wrap: break-word;">
         <div style="font-weight: bold; text-align: center;">
@@ -380,6 +435,14 @@ export class BoardComponent {
           ${data.description}
         </div>
       </div>`;
+  }
+
+  private escapeHtmlAttribute(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
   }
 
   private makeNodeGrabbable(node: NodeSingular | undefined): void {

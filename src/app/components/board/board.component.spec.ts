@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Renderer2, Component, PLATFORM_ID } from '@angular/core';
 import { of } from 'rxjs';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 @Component({
   selector: 'app-context-menu',
@@ -45,13 +46,15 @@ describe('BoardComponent', () => {
       'destroy',
       'elements',
       'layout',
-      'nodeHtmlLabel'
+      'nodeHtmlLabel',
+      'getElementById'
     ]);
     mockCytoscapeInstance.container = document.createElement('div');
     mockCytoscapeInstance.on.and.returnValue(mockCytoscapeInstance);
     mockCytoscapeInstance.add.and.returnValue(mockCytoscapeInstance);
     mockCytoscapeInstance.elements.and.returnValue({
-      jsons: () => []
+      jsons: () => [],
+      remove: () => {}
     });
     mockCytoscapeInstance.layout.and.returnValue({
       run: () => {}
@@ -65,7 +68,7 @@ describe('BoardComponent', () => {
     document.body.appendChild(cyDiv);
   
     await TestBed.configureTestingModule({
-      imports: [BoardComponent],
+      imports: [BoardComponent, NoopAnimationsModule],
       declarations: [
         MockContextMenuComponent,
         MockRelationDialogComponent,
@@ -95,6 +98,87 @@ describe('BoardComponent', () => {
   xit('should add nodes and edges in loadFromJaw', fakeAsync(() => {
     //
   }));
+
+  it('should default imported JAW node colors and preserve custom colors', () => {
+    const nodes = [
+      {
+        group: 'nodes',
+        data: { id: '1', nodeType: 'participant' },
+        position: { x: 0, y: 0 }
+      },
+      {
+        group: 'nodes',
+        data: { id: '2', nodeType: 'argument', backgroundColor: '#123abc' },
+        position: { x: 1, y: 1 }
+      }
+    ];
+    Object.defineProperty(component, 'cy', { value: mockCytoscapeInstance, writable: true });
+
+    component.loadFromJaw(nodes);
+
+    expect(mockCytoscapeInstance.add).toHaveBeenCalledWith([
+      jasmine.objectContaining({
+        data: jasmine.objectContaining({ backgroundColor: '#beeeb8' })
+      }),
+      jasmine.objectContaining({
+        data: jasmine.objectContaining({ backgroundColor: '#123abc' })
+      })
+    ]);
+  });
+
+  it('should include node colors in exported JAW content', () => {
+    const exportedNodes = [{
+      group: 'nodes',
+      data: { id: '1', nodeType: 'argument', backgroundColor: '#123abc' }
+    }];
+    mockCytoscapeInstance.elements.and.returnValue({
+      jsons: () => exportedNodes,
+      remove: () => {}
+    });
+    Object.defineProperty(component, 'cy', { value: mockCytoscapeInstance, writable: true });
+
+    const jawContent = JSON.parse(component.returnBoardContent());
+
+    expect(jawContent[0].data.backgroundColor).toBe('#123abc');
+  });
+
+  it('should pass a relation node title as its selected relation type when editing', () => {
+    mockMatDialog.open.and.returnValue({
+      afterClosed: () => of(null)
+    } as any);
+    const relationNode = {
+      data: (key: string) => ({ nodeType: 'relation', title: 'Support' })[key as 'nodeType' | 'title']
+    };
+
+    component['editNode'](relationNode as any);
+
+    expect(mockMatDialog.open.calls.mostRecent().args[1]?.data).toEqual({
+      relationType: 'Support',
+      isEditMode: true
+    });
+  });
+
+  it('should size node hit areas to their HTML labels', () => {
+    const node = jasmine.createSpyObj('Node', ['isNode', 'width', 'height', 'style']);
+    node.isNode.and.returnValue(true);
+    node.width.and.returnValue(30);
+    node.height.and.returnValue(30);
+    mockCytoscapeInstance.getElementById.and.returnValue(node);
+    Object.defineProperty(component, 'cy', { value: mockCytoscapeInstance, writable: true });
+
+    const container = document.createElement('div');
+    const label = document.createElement('div');
+    label.setAttribute('data-node-id', 'node-1');
+    label.style.width = '120px';
+    label.style.height = '80px';
+    container.appendChild(label);
+    document.body.appendChild(container);
+
+    component['updateNodeHitAreas'](container);
+
+    expect(node.style).toHaveBeenCalledWith({ width: '120px', height: '80px' });
+    container.remove();
+  });
 
   xit('should clear the board', () => {
     //
