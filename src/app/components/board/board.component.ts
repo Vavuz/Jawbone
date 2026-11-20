@@ -241,12 +241,14 @@ export class BoardComponent {
   
     if (isRelationNode) {
       dialogRef = this.dialog.open(RelationDialogComponent, {
-        width: '300px',
+        width: '500px',
+        maxWidth: '90vw',
         data: { title: node.data('title'), isEditMode: true },
       });
     } else {
       dialogRef = this.dialog.open(NodeDialogComponent, {
-        width: '300px',
+        width: '500px',
+        maxWidth: '90vw',
         data: {
           title: node.data('title'),
           description: node.data('description'),
@@ -297,7 +299,8 @@ export class BoardComponent {
 
   onAddNode(description: string): void {
     const dialogRef = this.dialog.open(NodeDialogComponent, {
-      width: '300px',
+      width: '500px',
+      maxWidth: '90vw',
       data: { title: "", description: description || "Default" },
     });
 
@@ -466,7 +469,8 @@ export class BoardComponent {
 
   private createConnection(targetNode: NodeSingular): void {
     const dialogRef = this.dialog.open(RelationDialogComponent, {
-      width: '300px',
+      width: '500px',
+      maxWidth: '90vw',
       data: {
         relationType: '',
         directConnection: this.connectionToRelationNode,

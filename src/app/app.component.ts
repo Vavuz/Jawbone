@@ -99,6 +99,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   reset(): void {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '500px',
+      maxWidth: '90vw',
       data: {
         title: 'Reset Board',
         message: 'Are you sure you want to reset the board? This cannot be undone.',
@@ -166,6 +168,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   loadDemo(): void {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '500px',
+      maxWidth: '90vw',
       data: {
         title: 'Load Demo',
         message: 'Are you sure you want to load the demo? This will override the current board and cannot be undone.',

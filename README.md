@@ -1,3 +1,7 @@
 # Jawbone
 
 Jawbone is a prototype web application designed for the analysis and visualisation of dialogues, enabling users to identify and categorise speech acts within conversations. Developed in Angular, Jawbone provides an accessible interface for manually annotating dialogue interactions, constructing structured dialogue maps, and analysing the flow of arguments. The application supports imports and exports in its custom `.JAW` file format, allowing users to save and revisit their dialogue analyses easily. Jawbone serves as a versatile tool for researchers and enthusiasts interested in dialogue analysis, argument mapping, and exploring the dynamics of structured dialogues.
+
+## Deployment
+
+Pushing or merging code to `master` builds the Angular app and deploys it to GitHub Pages.

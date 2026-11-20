@@ -1,1 +1,17 @@
 /* You can add global styles to this file, and also import other style files */
+
+@media (max-width: 1000px) {
+  app-root .main-container .sidebar {
+    padding: 10px;
+  }
+
+  app-root .main-container .toggle-button {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  app-root .main-container .title-container img {
+    max-width: 72px;
+    height: auto;
+  }
+}
