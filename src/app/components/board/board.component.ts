@@ -294,7 +294,7 @@ export class BoardComponent {
       dialogRef = this.dialog.open(RelationDialogComponent, {
         width: '500px',
         maxWidth: '90vw',
-        data: { title: node.data('title'), isEditMode: true },
+        data: { relationType: node.data('title'), isEditMode: true },
       });
     } else {
       dialogRef = this.dialog.open(NodeDialogComponent, {

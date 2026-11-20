@@ -3,9 +3,9 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RelationDialogComponent } from './relation-dialog.component';
 import { By } from '@angular/platform-browser';
+import { OverlayContainer } from '@angular/cdk/overlay';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
@@ -40,7 +40,6 @@ describe('RelationDialogComponent', () => {
         ReactiveFormsModule,
         NoopAnimationsModule,
         MatCheckboxModule,
-        MatSelectModule,
         MatFormFieldModule,
         MatButtonModule,
         HttpClientTestingModule
@@ -114,12 +113,40 @@ describe('RelationDialogComponent', () => {
     expect(filteredRelations).not.toContain('Therefore');
   });
 
+  it('should open the relation table from its field', () => {
+    const field = fixture.debugElement.query(By.css('.wide-select input'));
+    (field.nativeElement as HTMLInputElement).click();
+    fixture.detectChanges();
+
+    expect(component.relationPickerOpen).toBeTrue();
+    expect(TestBed.inject(OverlayContainer).getContainerElement().querySelector('.relation-table')).not.toBeNull();
+  });
+
+  it('should select a relation from the picker', () => {
+    component.openRelationPicker();
+    component.selectRelationType('Attack');
+
+    expect(component.relationControl.value).toBe('Attack');
+    expect(component.relationPickerOpen).toBeFalse();
+  });
+
+  it('should mark the current relation as selected in the picker', () => {
+    component.selectRelationType('Support');
+    component.openRelationPicker();
+    fixture.detectChanges();
+
+    const overlay = TestBed.inject(OverlayContainer).getContainerElement();
+    const selectedOption = overlay.querySelector('.table-option[aria-pressed="true"]');
+
+    expect(selectedOption?.textContent).toContain('Support');
+  });
+
   it('should disable the relation type selection if connected to a relation node', () => {
     component.data.isConnectionToRelationNode = true;
     fixture.detectChanges();
 
-    const formField = fixture.debugElement.query(By.css('.wide-select'));
-    expect(formField).toBeNull();
+    const relationField = fixture.debugElement.query(By.css('.wide-select'));
+    expect(relationField).toBeNull();
   });
 
   it('should close dialog with data on Save if form is valid', () => {

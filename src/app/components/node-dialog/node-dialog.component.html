@@ -36,21 +36,68 @@
   </div>
 
   <ng-container *ngIf="selectedNodeType === 'dialogue'">
-    <mat-form-field appearance="fill" class="wide-select">
+    <mat-form-field appearance="fill" class="wide-select" (click)="openSpeechActPicker()">
       <mat-label>Speech Act Type</mat-label>
-      <mat-select [formControl]="titleControl" [(ngModel)]="data.title" [errorStateMatcher]="matcher">
-        <div class="search-container">
-          <input placeholder="Search" class="search-input" [formControl]="searchControl">  
-        </div>
-              
-        <mat-optgroup *ngFor="let group of filteredGroups" [label]="group.name">
-          <mat-option *ngFor="let speechAct of group.speechActs" [value]="speechAct">
-            {{ speechAct }}
-          </mat-option>
-        </mat-optgroup>
-      </mat-select>
+      <input
+        matInput
+        [formControl]="titleControl"
+        readonly
+        cdkOverlayOrigin
+        #speechActOrigin="cdkOverlayOrigin"
+        aria-haspopup="dialog"
+        [attr.aria-expanded]="speechActPickerOpen"
+        (keydown.enter)="openSpeechActPicker(); $event.preventDefault()"
+        (keydown.space)="openSpeechActPicker(); $event.preventDefault()">
+      <span matSuffix class="picker-arrow" aria-hidden="true"></span>
       <mat-error *ngIf="titleControl.hasError('required')">You must select a speech act type</mat-error>
     </mat-form-field>
+    <ng-template
+      cdkConnectedOverlay
+      [cdkConnectedOverlayOrigin]="speechActOrigin"
+      [cdkConnectedOverlayOpen]="speechActPickerOpen"
+      [cdkConnectedOverlayPositions]="pickerPositions"
+      [cdkConnectedOverlayHasBackdrop]="true"
+      cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+      [cdkConnectedOverlayFlexibleDimensions]="true"
+      [cdkConnectedOverlayPush]="true"
+      [cdkConnectedOverlayViewportMargin]="16"
+      (backdropClick)="closeSpeechActPicker()"
+      (detach)="closeSpeechActPicker()">
+      <div class="picker-panel" role="dialog" aria-label="Speech act selection" (keydown.escape)="closeSpeechActPicker()">
+        <label class="table-selector-label" for="speech-act-search">Search speech acts</label>
+        <input id="speech-act-search" placeholder="Search speech acts" class="search-input" [formControl]="searchControl">
+        <div class="table-scroll">
+          <table class="selection-table speech-act-table">
+            <thead>
+              <tr>
+                <th scope="col">Category</th>
+                <th scope="col">Speech act</th>
+              </tr>
+            </thead>
+            <tbody *ngFor="let group of filteredGroups">
+              <tr
+                *ngFor="let speechAct of group.speechActs; let i = index"
+                [class.selected]="titleControl.value === speechAct">
+                <td *ngIf="i === 0" class="category-cell" [attr.rowspan]="group.speechActs.length">
+                  {{ group.name }}
+                </td>
+                <td>
+                  <button
+                    type="button"
+                    class="table-option"
+                    [attr.aria-pressed]="titleControl.value === speechAct"
+                    (click)="selectSpeechAct(speechAct)">
+                    <span class="radio-indicator" aria-hidden="true"></span>
+                    {{ speechAct }}
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="empty-message" *ngIf="filteredGroups.length === 0">No speech acts match your search.</p>
+      </div>
+    </ng-template>
     <mat-form-field appearance="fill">
       <mat-label>Description</mat-label>
       <input matInput [formControl]="descriptionControl" [(ngModel)]="data.description">

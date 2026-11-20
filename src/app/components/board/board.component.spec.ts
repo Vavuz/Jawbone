@@ -142,6 +142,22 @@ describe('BoardComponent', () => {
     expect(jawContent[0].data.backgroundColor).toBe('#123abc');
   });
 
+  it('should pass a relation node title as its selected relation type when editing', () => {
+    mockMatDialog.open.and.returnValue({
+      afterClosed: () => of(null)
+    } as any);
+    const relationNode = {
+      data: (key: string) => ({ nodeType: 'relation', title: 'Support' })[key as 'nodeType' | 'title']
+    };
+
+    component['editNode'](relationNode as any);
+
+    expect(mockMatDialog.open.calls.mostRecent().args[1]?.data).toEqual({
+      relationType: 'Support',
+      isEditMode: true
+    });
+  });
+
   it('should size node hit areas to their HTML labels', () => {
     const node = jasmine.createSpyObj('Node', ['isNode', 'width', 'height', 'style']);
     node.isNode.and.returnValue(true);

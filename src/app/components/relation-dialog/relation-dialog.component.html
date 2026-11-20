@@ -3,20 +3,66 @@
 </h1>
 <div mat-dialog-content style="padding-bottom: 0;">
   <form [formGroup]="relationForm">
-    <mat-form-field appearance="fill" class="wide-select" *ngIf="!data.isConnectionToRelationNode">
-      <mat-label>Relation Type</mat-label>
-      <mat-select formControlName="relationType">
-        <div class="search-container">
-          <input placeholder="Search" class="search-input" [formControl]="searchControl">  
+    <ng-container *ngIf="!data.isConnectionToRelationNode">
+      <mat-form-field appearance="fill" class="wide-select" (click)="openRelationPicker()">
+        <mat-label>Relation Type</mat-label>
+        <input
+          matInput
+          formControlName="relationType"
+          readonly
+          cdkOverlayOrigin
+          #relationOrigin="cdkOverlayOrigin"
+          aria-haspopup="dialog"
+          [attr.aria-expanded]="relationPickerOpen"
+          (keydown.enter)="openRelationPicker(); $event.preventDefault()"
+          (keydown.space)="openRelationPicker(); $event.preventDefault()">
+        <span matSuffix class="picker-arrow" aria-hidden="true"></span>
+        <mat-error *ngIf="relationControl.hasError('required') && !directConnectionControl.value">
+          You must select a relation type
+        </mat-error>
+      </mat-form-field>
+      <ng-template
+        cdkConnectedOverlay
+        [cdkConnectedOverlayOrigin]="relationOrigin"
+        [cdkConnectedOverlayOpen]="relationPickerOpen"
+        [cdkConnectedOverlayPositions]="pickerPositions"
+        [cdkConnectedOverlayHasBackdrop]="true"
+        cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+        [cdkConnectedOverlayFlexibleDimensions]="true"
+        [cdkConnectedOverlayPush]="true"
+        [cdkConnectedOverlayViewportMargin]="16"
+        (backdropClick)="closeRelationPicker()"
+        (detach)="closeRelationPicker()">
+        <div class="picker-panel" role="dialog" aria-label="Relation type selection" (keydown.escape)="closeRelationPicker()">
+          <label class="table-selector-label" for="relation-search">Search relation types</label>
+          <input id="relation-search" placeholder="Search relation types" class="search-input" [formControl]="searchControl">
+          <div class="table-scroll">
+            <table class="selection-table relation-table">
+              <thead>
+                <tr>
+                  <th scope="col">Relation type</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let relation of filteredRelationTypes" [class.selected]="relationControl.value === relation">
+                  <td>
+                    <button
+                      type="button"
+                      class="table-option"
+                      [attr.aria-pressed]="relationControl.value === relation"
+                      (click)="selectRelationType(relation)">
+                      <span class="radio-indicator" aria-hidden="true"></span>
+                      {{ relation }}
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="empty-message" *ngIf="filteredRelationTypes.length === 0">No relation types match your search.</p>
         </div>
-        <mat-option *ngFor="let relation of filteredRelationTypes" [value]="relation">
-          {{ relation }}
-        </mat-option>
-      </mat-select>
-      <mat-error *ngIf="relationControl.hasError('required') && !directConnectionControl.value">
-        You must select a relation type
-      </mat-error>
-    </mat-form-field>
+      </ng-template>
+    </ng-container>
     <mat-checkbox formControlName="directConnection" *ngIf="!data.isEditMode">
       Do not add a relation node
     </mat-checkbox>
