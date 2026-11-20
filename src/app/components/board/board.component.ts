@@ -47,6 +47,7 @@ export class BoardComponent {
   @ViewChild('contextMenuContainer', { read: ViewContainerRef })
   private contextMenuContainer!: ViewContainerRef;
   private contextMenuRef: ComponentRef<ContextMenuComponent> | null = null;
+  private removeOutsideClickListener: (() => void) | null = null;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -63,6 +64,7 @@ export class BoardComponent {
   }
 
   ngOnDestroy(): void {
+    this.hideContextMenu();
     this.nodeLabelObserver?.disconnect();
     this.cy?.destroy();
   }
@@ -228,9 +230,22 @@ export class BoardComponent {
     domElem.style.zIndex = '1000';
   
     this.contextMenuRef = contextMenuRef;
+    this.removeOutsideClickListener = this.renderer.listen('document', 'click', (clickEvent: MouseEvent) => {
+      this.onDocumentClick(clickEvent);
+    });
   }  
 
+  private onDocumentClick(event: MouseEvent): void {
+    const menuElement = this.contextMenuRef?.location.nativeElement as HTMLElement | undefined;
+    if (!menuElement || menuElement.contains(event.target as Node)) return;
+
+    this.hideContextMenu();
+  }
+
   private hideContextMenu(): void {
+    this.removeOutsideClickListener?.();
+    this.removeOutsideClickListener = null;
+
     if (this.contextMenuRef) {
       this.contextMenuRef.destroy();
       this.contextMenuRef = null;

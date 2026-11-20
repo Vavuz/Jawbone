@@ -142,6 +142,28 @@ describe('BoardComponent', () => {
     expect(jawContent[0].data.backgroundColor).toBe('#123abc');
   });
 
+  it('should hide the context menu when clicking outside it', () => {
+    const menuElement = document.createElement('div');
+    const menuButton = document.createElement('button');
+    menuElement.appendChild(menuButton);
+    const destroyMenu = jasmine.createSpy('destroyMenu');
+    const removeListener = jasmine.createSpy('removeListener');
+    component['contextMenuRef'] = {
+      location: { nativeElement: menuElement },
+      destroy: destroyMenu
+    } as any;
+    component['removeOutsideClickListener'] = removeListener;
+
+    component['onDocumentClick']({ target: menuButton } as MouseEvent);
+    expect(destroyMenu).not.toHaveBeenCalled();
+
+    component['onDocumentClick']({ target: document.body } as MouseEvent);
+
+    expect(destroyMenu).toHaveBeenCalled();
+    expect(removeListener).toHaveBeenCalled();
+    expect(component['contextMenuRef']).toBeNull();
+  });
+
   it('should pass a relation node title as its selected relation type when editing', () => {
     mockMatDialog.open.and.returnValue({
       afterClosed: () => of(null)
