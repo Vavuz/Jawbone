@@ -186,6 +186,22 @@ describe('NodeDialogComponent', () => {
     expect(dialogRefSpy.close).not.toHaveBeenCalled();
   });
 
+  it('should save valid changes when Enter is pressed in a text field', () => {
+    component.titleControl.setValue('Question');
+    component.descriptionControl.setValue('Updated description');
+    fixture.detectChanges();
+
+    const descriptionInput = fixture.debugElement.query(By.css('mat-form-field:not(.wide-select) input'));
+    const enterEvent = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true });
+    descriptionInput.nativeElement.dispatchEvent(enterEvent);
+
+    expect(enterEvent.defaultPrevented).toBeTrue();
+    expect(dialogRefSpy.close).toHaveBeenCalledWith(jasmine.objectContaining({
+      title: 'Question',
+      description: 'Updated description'
+    }));
+  });
+
   it('should close dialog without data on Cancel', () => {
     component.onCancel();
     expect(dialogRefSpy.close).toHaveBeenCalledWith();

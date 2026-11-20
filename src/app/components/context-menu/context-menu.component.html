@@ -1,4 +1,5 @@
 <div class="context-menu">
     <button (click)="onEditNode()">Edit Node</button>
+    <button [hidden]="!canAddConnection" (click)="onAddConnection()">Add Connection</button>
     <button (click)="onDeleteNode()">Delete Node</button>
 </div>

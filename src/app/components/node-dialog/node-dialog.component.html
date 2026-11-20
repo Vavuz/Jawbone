@@ -1,6 +1,6 @@
 <h1 mat-dialog-title>{{ data.isEditMode ? 'Edit Node' : 'Add New Node' }}</h1>
 
-<div mat-dialog-content style="padding-bottom: 0;">
+<div mat-dialog-content style="padding-bottom: 0;" (keydown.enter)="saveOnEnter($event)">
   
   <mat-radio-group [(ngModel)]="selectedNodeType" (ngModelChange)="onNodeTypeChange()" class="node-type-selector" [disabled]="data.isEditMode">
     <mat-radio-button *ngIf="!data.isEditMode || selectedNodeType === 'dialogue'" value="dialogue">Dialogue Node</mat-radio-button>

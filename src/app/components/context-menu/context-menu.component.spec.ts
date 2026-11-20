@@ -29,6 +29,24 @@ describe('ContextMenuComponent', () => {
     expect(component.editNode.emit).toHaveBeenCalled();
   });
 
+  it('should emit addConnection event when Add Connection is clicked', () => {
+    spyOn(component.addConnection, 'emit');
+
+    const addConnectionButton = fixture.debugElement.query(By.css('button:nth-child(2)')).nativeElement;
+    addConnectionButton.click();
+
+    expect(component.addConnection.emit).toHaveBeenCalled();
+  });
+
+  it('should hide Add Connection when the node cannot be a connection source', () => {
+    component.canAddConnection = false;
+    fixture.detectChanges();
+
+    const addConnectionButton = fixture.debugElement.query(By.css('button:nth-child(2)')).nativeElement as HTMLButtonElement;
+
+    expect(addConnectionButton.hidden).toBeTrue();
+  });
+
   it('should emit deleteNode event when Delete Node button is clicked', () => {
     spyOn(component.deleteNode, 'emit');
 

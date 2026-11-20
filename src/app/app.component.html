@@ -5,7 +5,15 @@
     <button class="load-dialogue" (click)="uploadertxt.click()">TXT</button> 
     <p class="text-block-title">Content:</p>
     <button class="add-node" (click)="addNode()">Add Node</button>
-    <textarea type="text" class="text-block" placeholder="Enter text here" [(ngModel)]="textBlock"></textarea>
+    <textarea
+      class="text-block"
+      [style.outline]="isTextDropActive ? '2px dashed #507DBC' : null"
+      [placeholder]="isTextDropActive ? 'Drop TXT file to load its contents' : 'Enter text here or drop a TXT file'"
+      [(ngModel)]="textBlock"
+      (dragover)="onTextAreaDragOver($event)"
+      (dragleave)="onTextAreaDragLeave()"
+      (drop)="onTextAreaDrop($event)">
+    </textarea>
   </div>
   <div class="content">
     <div class="title-container">
@@ -29,9 +37,9 @@
       <button class="export-jaw" (click)="exportJaw()">JAW</button>
     </div>
     <div class="sidebar-bottom">
-      <p class="text-block-title">Documentation:</p>
-      <a href="assets/instructions.pdf" download="instructions.pdf">Documentation</a><br>
-      <a href="https://github.com/Vavuz/Jawbone" target="_blank">Code repository</a>
+      <p class="text-block-title">Additional material:</p>
+      <a href="https://github.com/Vavuz/Jawbone" target="_blank">Code repository</a><br>
+      <a href="assets/instructions.pdf" download="instructions.pdf">Documentation (This documentation is NOT up to date.)</a><br>
       <p class="prototype-text">Jawbone is a prototype application.</p>
     </div>
   </div>

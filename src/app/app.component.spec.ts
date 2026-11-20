@@ -152,6 +152,43 @@ describe('AppComponent', () => {
     expect(mockBoardComponent.loadFromJaw).not.toHaveBeenCalled();
     expect(component.textBlock).toBe('some text');
   }));
+
+  it('should load a dropped TXT file into the text block', fakeAsync(() => {
+    const mockFile = new File(['content'], 'dropped.txt', { type: 'text/plain' });
+    const dataTransfer = {
+      files: [mockFile],
+      dropEffect: 'none'
+    } as unknown as DataTransfer;
+    const event = {
+      preventDefault: jasmine.createSpy('preventDefault'),
+      dataTransfer
+    } as unknown as DragEvent;
+    mockFileUploadService.readFile.and.returnValue(Promise.resolve('dropped text'));
+
+    component.onTextAreaDrop(event);
+    tick();
+
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(mockFileUploadService.readFile).toHaveBeenCalledWith(mockFile);
+    expect(component.textBlock).toBe('dropped text');
+    expect(component.isTextDropActive).toBeFalse();
+  }));
+
+  it('should activate the text area drop styling while dragging a file over it', () => {
+    const event = {
+      preventDefault: jasmine.createSpy('preventDefault'),
+      dataTransfer: { dropEffect: 'none', types: ['Files'] }
+    } as unknown as DragEvent;
+
+    component.onTextAreaDragOver(event);
+
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(event.dataTransfer!.dropEffect).toBe('copy');
+    expect(component.isTextDropActive).toBeTrue();
+
+    component.onTextAreaDragLeave();
+    expect(component.isTextDropActive).toBeFalse();
+  });
   
   it('should call imageExportService.exportDiagramAsImage with "cy" when exportPng is called', () => {
     const imageExportService = TestBed.inject(ImageExportService);

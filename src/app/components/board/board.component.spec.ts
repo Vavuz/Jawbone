@@ -142,6 +142,87 @@ describe('BoardComponent', () => {
     expect(jawContent[0].data.backgroundColor).toBe('#123abc');
   });
 
+  it('should hide the context menu when clicking outside it', () => {
+    const menuElement = document.createElement('div');
+    const menuButton = document.createElement('button');
+    menuElement.appendChild(menuButton);
+    const destroyMenu = jasmine.createSpy('destroyMenu');
+    const removeListener = jasmine.createSpy('removeListener');
+    component['contextMenuRef'] = {
+      location: { nativeElement: menuElement },
+      destroy: destroyMenu
+    } as any;
+    component['removeOutsideClickListener'] = removeListener;
+
+    component['onDocumentClick']({ target: menuButton } as MouseEvent);
+    expect(destroyMenu).not.toHaveBeenCalled();
+
+    component['onDocumentClick']({ target: document.body } as MouseEvent);
+
+    expect(destroyMenu).toHaveBeenCalled();
+    expect(removeListener).toHaveBeenCalled();
+    expect(component['contextMenuRef']).toBeNull();
+  });
+
+  it('should select a non-relation node as the connection source', () => {
+    const node = jasmine.createSpyObj('Node', ['data', 'id', 'addClass', 'removeClass']);
+    node.data.and.returnValue('argument');
+    node.id.and.returnValue('source');
+    Object.defineProperty(component, 'cy', {
+      value: {
+        container: () => document.createElement('div'),
+        destroy: jasmine.createSpy('destroy')
+      },
+      writable: true
+    });
+
+    component['beginConnection'](node as any);
+
+    expect(component.selectedNode).toBe(node);
+    expect(node.addClass).toHaveBeenCalledWith('connection-source');
+    expect(mockMatSnackBar.open).toHaveBeenCalledWith('Select a node to connect to', 'Close', jasmine.any(Object));
+  });
+
+  it('should preserve the check that prevents starting from a relation node', () => {
+    const relationNode = jasmine.createSpyObj('Node', ['data']);
+    relationNode.data.and.returnValue('relation');
+
+    component['beginConnection'](relationNode as any);
+
+    expect(component.selectedNode).toBeNull();
+    expect(mockMatSnackBar.open).toHaveBeenCalledWith(
+      'Connections cannot start from a relation node',
+      'Close',
+      jasmine.any(Object)
+    );
+  });
+
+  it('should preserve duplicate-connection validation when selecting a target', () => {
+    const sourceNode = jasmine.createSpyObj('Node', ['removeClass']);
+    const targetNode = jasmine.createSpyObj('Node', ['data']);
+    targetNode.data.and.returnValue('argument');
+    component.selectedNode = sourceNode as any;
+    spyOn(component as any, 'areNodesConnected').and.returnValue(true);
+
+    component['onConnectionTargetClick'](targetNode as any);
+
+    expect(mockMatSnackBar.open).toHaveBeenCalledWith('This connection already exists', 'Close', jasmine.any(Object));
+    expect(component.selectedNode).toBeNull();
+  });
+
+  it('should allow a node to connect to itself', () => {
+    const node = jasmine.createSpyObj('Node', ['id', 'data']);
+    node.id.and.returnValue('node-1');
+    node.data.and.returnValue('argument');
+    component.selectedNode = node as any;
+    spyOn(component as any, 'areNodesConnected').and.returnValue(false);
+    const createConnection = spyOn(component as any, 'createConnection');
+
+    component['onConnectionTargetClick'](node as any);
+
+    expect(createConnection).toHaveBeenCalledWith(node);
+  });
+
   it('should pass a relation node title as its selected relation type when editing', () => {
     mockMatDialog.open.and.returnValue({
       afterClosed: () => of(null)

@@ -47,6 +47,8 @@ export class BoardComponent {
   @ViewChild('contextMenuContainer', { read: ViewContainerRef })
   private contextMenuContainer!: ViewContainerRef;
   private contextMenuRef: ComponentRef<ContextMenuComponent> | null = null;
+  private removeOutsideClickListener: (() => void) | null = null;
+  private selectedNodeLabel: HTMLElement | null = null;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -63,6 +65,8 @@ export class BoardComponent {
   }
 
   ngOnDestroy(): void {
+    this.hideContextMenu();
+    this.clearConnectionSelection();
     this.nodeLabelObserver?.disconnect();
     this.cy?.destroy();
   }
@@ -106,6 +110,14 @@ export class BoardComponent {
           height: '40px',
           'text-max-width': '100px',
           content: 'data(title)',
+        },
+      },
+      {
+        selector: 'node.connection-source',
+        style: {
+          'overlay-color': '#1976d2',
+          'overlay-opacity': 0.25,
+          'overlay-padding': 6,
         },
       },
       {
@@ -160,8 +172,8 @@ export class BoardComponent {
   private setupEventListeners(): void {
     if (!this.cy) return;
 
-    this.cy.on('dblclick', 'node', (event) => this.onNodeDoubleClick(event.target));
     this.cy.on('cxttap', 'node', (event) => this.showContextMenu(event.target, event.originalEvent));
+    this.cy.on('tap', 'node', (event) => this.onConnectionTargetClick(event.target));
     this.cy.on('tap', (event) => this.onBackgroundClick(event));
 
     this.renderer.listen('document', 'contextmenu', (event) => {
@@ -186,7 +198,7 @@ export class BoardComponent {
   private onBackgroundClick(event: EventObject): void {
     if (event.target === this.cy) {
       this.hideContextMenu();
-      this.selectedNode = null;
+      this.clearConnectionSelection();
     }
   }
 
@@ -196,10 +208,17 @@ export class BoardComponent {
     const contextMenuRef = this.contextMenuContainer.createComponent(
       ContextMenuComponent
     );
+    contextMenuRef.instance.canAddConnection = node.data('nodeType') !== 'relation';
+    contextMenuRef.changeDetectorRef.detectChanges();
     
     contextMenuRef.instance.editNode.subscribe(() => {
       this.hideContextMenu();
       this.editNode(node);
+    });
+
+    contextMenuRef.instance.addConnection.subscribe(() => {
+      this.hideContextMenu();
+      this.beginConnection(node);
     });
 
     contextMenuRef.instance.deleteNode.subscribe(() => {
@@ -228,9 +247,22 @@ export class BoardComponent {
     domElem.style.zIndex = '1000';
   
     this.contextMenuRef = contextMenuRef;
+    this.removeOutsideClickListener = this.renderer.listen('document', 'click', (clickEvent: MouseEvent) => {
+      this.onDocumentClick(clickEvent);
+    });
   }  
 
+  private onDocumentClick(event: MouseEvent): void {
+    const menuElement = this.contextMenuRef?.location.nativeElement as HTMLElement | undefined;
+    if (!menuElement || menuElement.contains(event.target as Node)) return;
+
+    this.hideContextMenu();
+  }
+
   private hideContextMenu(): void {
+    this.removeOutsideClickListener?.();
+    this.removeOutsideClickListener = null;
+
     if (this.contextMenuRef) {
       this.contextMenuRef.destroy();
       this.contextMenuRef = null;
@@ -325,6 +357,10 @@ export class BoardComponent {
 
   private deleteNode(node: NodeSingular): void {
     if (!this.cy || !node) return;
+
+    if (this.selectedNode?.id() === node.id()) {
+      this.clearConnectionSelection();
+    }
   
     // Relation node removal
     if (node.data('nodeType') === 'relation') {
@@ -454,24 +490,54 @@ export class BoardComponent {
     });
   }
 
-  private onNodeDoubleClick(node: NodeSingular): void {
+  private beginConnection(node: NodeSingular): void {
+    this.clearConnectionSelection();
     if (this.isInvalidConnectionStart(node)) return;
 
-    if (!this.selectedNode) {
-      this.selectedNode = node;
-      return;
-    }
+    this.selectedNode = node;
+    node.addClass('connection-source');
+    this.highlightConnectionSource(node);
+    this.snackBar.open('Select a node to connect to', 'Close', {
+      duration: 3000,
+    });
+  }
+
+  private onConnectionTargetClick(node: NodeSingular): void {
+    if (!this.selectedNode) return;
+    if (this.isInvalidConnectionStart(node)) return;
 
     if (this.areNodesConnected(this.selectedNode, node)) {
       this.snackBar.open('This connection already exists', 'Close', {
         duration: 3000,
       });
-      this.selectedNode = null;
-      this.connectionToRelationNode = false;
+      this.clearConnectionSelection();
       return;
     }
 
     this.createConnection(node);
+  }
+
+  private highlightConnectionSource(node: NodeSingular): void {
+    const container = this.cy?.container();
+    const label = Array.from(container?.querySelectorAll<HTMLElement>('[data-node-id]') ?? [])
+      .find(element => element.dataset['nodeId'] === node.id());
+    const surface = label?.closest<HTMLElement>('.cy-title') ?? label;
+    if (!surface) return;
+
+    surface.style.outline = '3px solid #1976d2';
+    surface.style.outlineOffset = '3px';
+    this.selectedNodeLabel = surface;
+  }
+
+  private clearConnectionSelection(): void {
+    this.selectedNode?.removeClass('connection-source');
+    if (this.selectedNodeLabel) {
+      this.selectedNodeLabel.style.outline = '';
+      this.selectedNodeLabel.style.outlineOffset = '';
+      this.selectedNodeLabel = null;
+    }
+    this.selectedNode = null;
+    this.connectionToRelationNode = false;
   }
 
   private isInvalidConnectionStart(node: NodeSingular): boolean {
@@ -546,7 +612,7 @@ export class BoardComponent {
       if (result) {
         this.addConnection(result, targetNode);
       }
-      this.selectedNode = null;
+      this.clearConnectionSelection();
     });
     
     this.connectionToRelationNode = false;
@@ -626,6 +692,7 @@ export class BoardComponent {
   }
 
   clear(): void {
+    this.clearConnectionSelection();
     this.nodeCounter = 0;
     this.edgeCounter = 0;
     this.cy?.elements().remove();
