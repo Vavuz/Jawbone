@@ -10,22 +10,14 @@ $border-color: #ccc;
 .main-container {
     display: flex;
     height: 100vh;
-}
-
-.left {
-    border-radius: 0 15px 15px 0;
-}
-
-.right {
-    border-radius: 15px 0 0 15px;
-    order: 2;
+    height: 100dvh;
+    overflow: hidden;
 }
 
 .sidebar {
-    width: 290px;
+    flex: 0 0 clamp(210px, 16vw, 290px);
     background-color: $sidebar-background-color;
     padding: 15px;
-    transition: width 0.3s ease;
     border-radius: 15px;
     overflow: auto;
     box-sizing: border-box;
@@ -62,18 +54,20 @@ $border-color: #ccc;
 }
 
 .collapsed {
-    width: 0;
-    padding: 20px 0;
+    flex-basis: 0;
+    padding: 0;
+    overflow: hidden;
 }
 
 .main-title {
-    font-size: 40px;
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
 }
 
 .content {
-    flex-grow: 1;
+    flex: 1 1 0;
+    min-width: 0;
     background-color: $board-background-color;
-    padding: 20px;
+    padding: 16px;
     border-radius: 15px;
     overflow: auto;
     display: flex;
@@ -81,7 +75,7 @@ $border-color: #ccc;
     justify-content: center;
     align-items: center;
     position: relative;
-    width: 100%;
+    box-sizing: border-box;
 }
 
 .sidebar button {

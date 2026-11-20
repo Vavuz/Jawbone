@@ -13,17 +13,35 @@ $modal-border-color: #888;
 :host {
     display: block;
     width: 100%;
+    max-width: 1600px;
 }
 
 #cy {
     background-color: $board-background-color;
     width: 100%;
-    height: calc(100vh - 200px);
-    min-height: 750px;
-    max-height: 1200px;
-    margin-top: 80px;
+    height: min(82vh, 900px);
+    min-height: 380px;
+    max-height: calc(100dvh - 220px);
+    margin-top: 60px;
     border-radius: 5px;
     justify-content: flex-end;
+    box-sizing: border-box;
+}
+
+@media (max-height: 760px) {
+    #cy {
+        height: calc(100dvh - 220px);
+        min-height: 280px;
+        margin-top: 48px;
+    }
+}
+
+@media (max-height: 560px) {
+    #cy {
+        height: calc(100dvh - 170px);
+        min-height: 220px;
+        margin-top: 40px;
+    }
 }
 
 .modal {
