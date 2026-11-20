@@ -46,7 +46,8 @@ describe('BoardComponent', () => {
       'destroy',
       'elements',
       'layout',
-      'nodeHtmlLabel'
+      'nodeHtmlLabel',
+      'getElementById'
     ]);
     mockCytoscapeInstance.container = document.createElement('div');
     mockCytoscapeInstance.on.and.returnValue(mockCytoscapeInstance);
@@ -139,6 +140,28 @@ describe('BoardComponent', () => {
     const jawContent = JSON.parse(component.returnBoardContent());
 
     expect(jawContent[0].data.backgroundColor).toBe('#123abc');
+  });
+
+  it('should size node hit areas to their HTML labels', () => {
+    const node = jasmine.createSpyObj('Node', ['isNode', 'width', 'height', 'style']);
+    node.isNode.and.returnValue(true);
+    node.width.and.returnValue(30);
+    node.height.and.returnValue(30);
+    mockCytoscapeInstance.getElementById.and.returnValue(node);
+    Object.defineProperty(component, 'cy', { value: mockCytoscapeInstance, writable: true });
+
+    const container = document.createElement('div');
+    const label = document.createElement('div');
+    label.setAttribute('data-node-id', 'node-1');
+    label.style.width = '120px';
+    label.style.height = '80px';
+    container.appendChild(label);
+    document.body.appendChild(container);
+
+    component['updateNodeHitAreas'](container);
+
+    expect(node.style).toHaveBeenCalledWith({ width: '120px', height: '80px' });
+    container.remove();
   });
 
   xit('should clear the board', () => {

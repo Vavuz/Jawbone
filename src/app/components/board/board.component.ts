@@ -37,6 +37,7 @@ nodeHtmlLabel(cytoscape);
 })
 export class BoardComponent {
   private cy?: Core;
+  private nodeLabelObserver?: MutationObserver;
   showModal = false;
   nodeCounter = 0;
   edgeCounter = 0;
@@ -62,6 +63,7 @@ export class BoardComponent {
   }
 
   ngOnDestroy(): void {
+    this.nodeLabelObserver?.disconnect();
     this.cy?.destroy();
   }
 
@@ -75,10 +77,21 @@ export class BoardComponent {
       userPanningEnabled: true,
       autoungrabify: false,
     });
+    this.observeNodeLabels();
   }
   
   private getCytoscapeStyles(): Stylesheet[] {
     return [
+      {
+        selector: 'node[nodeType != "relation"]',
+        style: {
+          shape: 'rectangle',
+          width: '1px',
+          height: '1px',
+          'background-opacity': 0,
+          'border-opacity': 0,
+        },
+      },
       {
         selector: 'node[nodeType="relation"]',
         style: {
@@ -111,6 +124,37 @@ export class BoardComponent {
         }
       },
     ];
+  }
+
+  private observeNodeLabels(): void {
+    const container = this.cy?.container();
+    if (!container) return;
+
+    this.nodeLabelObserver = new MutationObserver(() => this.updateNodeHitAreas(container));
+    this.nodeLabelObserver.observe(container, { childList: true, subtree: true });
+  }
+
+  private updateNodeHitAreas(container: HTMLElement): void {
+    if (!this.cy) return;
+
+    container.querySelectorAll<HTMLElement>('[data-node-id]').forEach((label) => {
+      const nodeId = label.dataset['nodeId'];
+      if (!nodeId) return;
+
+      const node = this.cy!.getElementById(nodeId);
+      if (!node.isNode()) return;
+
+      const labelSurface = label.closest<HTMLElement>('.cy-title') ?? label;
+      const width = labelSurface.offsetWidth;
+      const height = labelSurface.offsetHeight;
+      if (width === 0 || height === 0) return;
+      if (node.width() === width && node.height() === height) return;
+
+      node.style({
+        width: `${width}px`,
+        height: `${height}px`,
+      });
+    });
   }
 
   private setupEventListeners(): void {
@@ -358,10 +402,11 @@ export class BoardComponent {
     const borderColor = isParticipant ? 'green' : '#000';
     const backgroundColor = getNodeBackgroundColor(data.nodeType, data.backgroundColor);
     const textStyle = isParticipant ? 'font-weight: bold;' : '';
+    const nodeId = this.escapeHtmlAttribute(String(data.id));
 
     if (['argument', 'participant'].includes(data.nodeType)) {
       return `
-        <div style="
+        <div data-node-id="${nodeId}" style="
           border: 3px solid ${borderColor};
           border-radius: 5px;
           padding: 10px;
@@ -375,7 +420,7 @@ export class BoardComponent {
     }
 
     return `
-      <div style="
+      <div data-node-id="${nodeId}" style="
         border: 3px solid #000;
         border-radius: 5px;
         padding: 10px;
@@ -390,6 +435,14 @@ export class BoardComponent {
           ${data.description}
         </div>
       </div>`;
+  }
+
+  private escapeHtmlAttribute(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
   }
 
   private makeNodeGrabbable(node: NodeSingular | undefined): void {
