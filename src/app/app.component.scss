@@ -140,11 +140,6 @@ $border-color: #ccc;
     margin-top: 10px;
 }
 
-.text-block.drag-over {
-    border: 2px dashed $function-button-color;
-    background-color: #edf5fc;
-}
-
 .load-dialogue, .load-demo, .export-jaw, .export-png, .add-node {
     background-color: $function-button-color;
     color: white;

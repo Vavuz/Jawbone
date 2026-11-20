@@ -100,6 +100,14 @@ export class NodeDialogComponent implements OnInit {
     this.speechActPickerOpen = false;
   }
 
+  saveOnEnter(event: Event): void {
+    if (event.defaultPrevented) return;
+    if (!(event.target instanceof HTMLInputElement) || event.target.type !== 'text' || event.target.readOnly) return;
+
+    event.preventDefault();
+    this.onSave();
+  }
+
   onNodeTypeChange(): void {
     this.data.backgroundColor = DEFAULT_NODE_BACKGROUND_COLORS[this.selectedNodeType];
   }

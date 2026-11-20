@@ -7,7 +7,7 @@
     <button class="add-node" (click)="addNode()">Add Node</button>
     <textarea
       class="text-block"
-      [class.drag-over]="isTextDropActive"
+      [style.outline]="isTextDropActive ? '2px dashed #507DBC' : null"
       [placeholder]="isTextDropActive ? 'Drop TXT file to load its contents' : 'Enter text here or drop a TXT file'"
       [(ngModel)]="textBlock"
       (dragover)="onTextAreaDragOver($event)"
