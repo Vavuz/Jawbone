@@ -34,6 +34,7 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'Jawbone';
   isLeftCollapsed = false;
   isRightCollapsed = false;
+  isTextDropActive = false;
   newNodeDescription: string = '';
   textBlock: string = '';
 
@@ -126,6 +127,39 @@ export class AppComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.uploadFile(file, fileType);
+  }
+
+  onTextAreaDragOver(event: DragEvent): void {
+    if (!Array.from(event.dataTransfer?.types ?? []).includes('Files')) {
+      this.isTextDropActive = false;
+      return;
+    }
+
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'copy';
+    }
+    this.isTextDropActive = true;
+  }
+
+  onTextAreaDragLeave(): void {
+    this.isTextDropActive = false;
+  }
+
+  onTextAreaDrop(event: DragEvent): void {
+    this.isTextDropActive = false;
+
+    const file = event.dataTransfer?.files[0];
+    if (!file) {
+      return;
+    }
+
+    event.preventDefault();
+    this.uploadFile(file, 'txt');
+  }
+
+  private uploadFile(file: File, fileType: 'txt' | 'jaw'): void {
     const fileName = file.name;
     const fileExtension = fileName.split('.').pop()?.toLowerCase();
 

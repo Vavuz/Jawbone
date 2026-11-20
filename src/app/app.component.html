@@ -5,7 +5,15 @@
     <button class="load-dialogue" (click)="uploadertxt.click()">TXT</button> 
     <p class="text-block-title">Content:</p>
     <button class="add-node" (click)="addNode()">Add Node</button>
-    <textarea type="text" class="text-block" placeholder="Enter text here" [(ngModel)]="textBlock"></textarea>
+    <textarea
+      class="text-block"
+      [class.drag-over]="isTextDropActive"
+      [placeholder]="isTextDropActive ? 'Drop TXT file to load its contents' : 'Enter text here or drop a TXT file'"
+      [(ngModel)]="textBlock"
+      (dragover)="onTextAreaDragOver($event)"
+      (dragleave)="onTextAreaDragLeave()"
+      (drop)="onTextAreaDrop($event)">
+    </textarea>
   </div>
   <div class="content">
     <div class="title-container">
