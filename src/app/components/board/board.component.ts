@@ -504,7 +504,6 @@ export class BoardComponent {
 
   private onConnectionTargetClick(node: NodeSingular): void {
     if (!this.selectedNode) return;
-    if (node.id() === this.selectedNode.id()) return;
     if (this.isInvalidConnectionStart(node)) return;
 
     if (this.areNodesConnected(this.selectedNode, node)) {

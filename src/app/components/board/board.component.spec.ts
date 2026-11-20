@@ -210,6 +210,19 @@ describe('BoardComponent', () => {
     expect(component.selectedNode).toBeNull();
   });
 
+  it('should allow a node to connect to itself', () => {
+    const node = jasmine.createSpyObj('Node', ['id', 'data']);
+    node.id.and.returnValue('node-1');
+    node.data.and.returnValue('argument');
+    component.selectedNode = node as any;
+    spyOn(component as any, 'areNodesConnected').and.returnValue(false);
+    const createConnection = spyOn(component as any, 'createConnection');
+
+    component['onConnectionTargetClick'](node as any);
+
+    expect(createConnection).toHaveBeenCalledWith(node);
+  });
+
   it('should pass a relation node title as its selected relation type when editing', () => {
     mockMatDialog.open.and.returnValue({
       afterClosed: () => of(null)
