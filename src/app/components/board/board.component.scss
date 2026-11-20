@@ -10,10 +10,18 @@ $modal-border-color: #888;
     flex-direction: row;
 }
 
+:host {
+    display: block;
+    width: 100%;
+}
+
 #cy {
     background-color: $board-background-color;
-    width: 1350px;
-    height: 750px;
+    width: 100%;
+    height: calc(100vh - 200px);
+    min-height: 750px;
+    max-height: 1200px;
+    margin-top: 80px;
     border-radius: 5px;
     justify-content: flex-end;
 }
