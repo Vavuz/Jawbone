@@ -1,14 +1,16 @@
 .context-menu {
     position: absolute;
     z-index: 1000;
+    min-width: 130px;
     background: white;
     border: 1px solid #ccc;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  }
+}
 
 .context-menu button {
     display: block;
-    width: 95px;
+    width: 100%;
+    box-sizing: border-box;
     padding: 8px;
     border: none;
     background: none;
@@ -18,4 +20,8 @@
 
 .context-menu button:hover {
     background: #f0f0f0;
+}
+
+.context-menu button[hidden] {
+    display: none;
 }

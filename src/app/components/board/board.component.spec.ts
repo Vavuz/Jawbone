@@ -164,6 +164,52 @@ describe('BoardComponent', () => {
     expect(component['contextMenuRef']).toBeNull();
   });
 
+  it('should select a non-relation node as the connection source', () => {
+    const node = jasmine.createSpyObj('Node', ['data', 'id', 'addClass', 'removeClass']);
+    node.data.and.returnValue('argument');
+    node.id.and.returnValue('source');
+    Object.defineProperty(component, 'cy', {
+      value: {
+        container: () => document.createElement('div'),
+        destroy: jasmine.createSpy('destroy')
+      },
+      writable: true
+    });
+
+    component['beginConnection'](node as any);
+
+    expect(component.selectedNode).toBe(node);
+    expect(node.addClass).toHaveBeenCalledWith('connection-source');
+    expect(mockMatSnackBar.open).toHaveBeenCalledWith('Select a node to connect to', 'Close', jasmine.any(Object));
+  });
+
+  it('should preserve the check that prevents starting from a relation node', () => {
+    const relationNode = jasmine.createSpyObj('Node', ['data']);
+    relationNode.data.and.returnValue('relation');
+
+    component['beginConnection'](relationNode as any);
+
+    expect(component.selectedNode).toBeNull();
+    expect(mockMatSnackBar.open).toHaveBeenCalledWith(
+      'Connections cannot start from a relation node',
+      'Close',
+      jasmine.any(Object)
+    );
+  });
+
+  it('should preserve duplicate-connection validation when selecting a target', () => {
+    const sourceNode = jasmine.createSpyObj('Node', ['removeClass']);
+    const targetNode = jasmine.createSpyObj('Node', ['data']);
+    targetNode.data.and.returnValue('argument');
+    component.selectedNode = sourceNode as any;
+    spyOn(component as any, 'areNodesConnected').and.returnValue(true);
+
+    component['onConnectionTargetClick'](targetNode as any);
+
+    expect(mockMatSnackBar.open).toHaveBeenCalledWith('This connection already exists', 'Close', jasmine.any(Object));
+    expect(component.selectedNode).toBeNull();
+  });
+
   it('should pass a relation node title as its selected relation type when editing', () => {
     mockMatDialog.open.and.returnValue({
       afterClosed: () => of(null)
