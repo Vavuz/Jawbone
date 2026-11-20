@@ -12,6 +12,7 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { ContextMenuComponent } from '../context-menu/context-menu.component';
 import { RelationDialogComponent } from '../relation-dialog/relation-dialog.component';
 import { NodeDialogComponent } from '../node-dialog/node-dialog.component';
+import { getNodeBackgroundColor } from '../node-dialog/node-colors';
 import nodeHtmlLabel from 'cytoscape-node-html-label';
 
 nodeHtmlLabel(cytoscape);
@@ -199,6 +200,12 @@ export class BoardComponent {
     const nodes = jsonData.filter(element => element.group === 'nodes');
     const edges = jsonData.filter(element => element.group === 'edges');
   
+    nodes.forEach(node => {
+      if (node.data.nodeType !== 'relation') {
+        node.data.backgroundColor = getNodeBackgroundColor(node.data.nodeType, node.data.backgroundColor);
+      }
+    });
+
     this.cy.add(nodes);
     this.cy.add(edges);
   
@@ -254,6 +261,7 @@ export class BoardComponent {
           description: node.data('description'),
           isEditMode: true,
           nodeType: node.data('nodeType'),
+          backgroundColor: node.data('backgroundColor'),
         },
       });
     }
@@ -265,6 +273,7 @@ export class BoardComponent {
         } else {
           node.data('title', result.title);
           node.data('description', result.description);
+          node.data('backgroundColor', getNodeBackgroundColor(result.nodeType, result.backgroundColor));
         }
       }
     });
@@ -318,6 +327,7 @@ export class BoardComponent {
         title: result.title,
         description: result.description,
         nodeType: result.nodeType,
+        backgroundColor: getNodeBackgroundColor(result.nodeType, result.backgroundColor),
       },
       position: { x: 100, y: 100 },
     };
@@ -346,7 +356,7 @@ export class BoardComponent {
   private generateNodeTemplate(data: any): string {
     const isParticipant = data.nodeType === 'participant';
     const borderColor = isParticipant ? 'green' : '#000';
-    const backgroundColor = isParticipant ? '#beeeb8' : '#d8eefd';
+    const backgroundColor = getNodeBackgroundColor(data.nodeType, data.backgroundColor);
     const textStyle = isParticipant ? 'font-weight: bold;' : '';
 
     if (['argument', 'participant'].includes(data.nodeType)) {
@@ -369,7 +379,7 @@ export class BoardComponent {
         border: 3px solid #000;
         border-radius: 5px;
         padding: 10px;
-        background-color: #fff;
+        background-color: ${backgroundColor};
         max-width: 250px;
         overflow-wrap: break-word;">
         <div style="font-weight: bold; text-align: center;">

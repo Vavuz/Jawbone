@@ -20,3 +20,33 @@
 mat-form-field {
     width: 100%;
 }
+
+.node-color-picker {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.node-color-presets {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.node-color-preset {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid #666;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.node-color-preset.selected,
+.node-color-preset:focus-visible {
+    outline: 2px solid #333;
+    outline-offset: 2px;
+}
